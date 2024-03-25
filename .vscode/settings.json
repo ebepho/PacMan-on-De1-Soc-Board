@@ -61,6 +61,7 @@
     "complex": "cpp",
     "game_entities.h": "c",
     "globals.h": "c",
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "math.h": "c"
   }
 }
