@@ -1,21 +1,29 @@
 #include "graphics.h"
 
-
 void draw_setup() {
-  /* set front pixel buffer to Buffer 1 */
-  *(pixel_ctrl_ptr + 1) = (int) &Buffer1; // first store the address in the  back buffer
+	volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
+    // declare other variables(not shown)
 
-  /* now, swap the front/back buffers, to set the front buffer location */
-  wait_for_vsync(); 
+    /* set front pixel buffer to Buffer 1 */
+    *(pixel_ctrl_ptr + 1) = (int) &Buffer1; // first store the address in the  back buffer
+	
+    /* now, swap the front/back buffers, to set the front buffer location */
+    wait_for_vsync(); 
+	
+    /* initialize a pointer to the pixel buffer, used by drawing functions */
+    pixel_buffer_start = *pixel_ctrl_ptr;
+    clear_screen(); // pixel_buffer_start points to the pixel buffer
 
-  /* initialize a pointer to the pixel buffer, used by drawing functions */
-  pixel_buffer_start = *pixel_ctrl_ptr;
-  clear_screen(); // pixel_buffer_start points to the pixel buffer
+    /* set back pixel buffer to Buffer 2 */
+    *(pixel_ctrl_ptr + 1) = (int) &Buffer2;
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // we draw on the back buffer
+    clear_screen(); // pixel_buffer_start points to the pixel buffer
+}
 
-  /* set back pixel buffer to Buffer 2 */
-  *(pixel_ctrl_ptr + 1) = (int) &Buffer2;
-  pixel_buffer_start = *(pixel_ctrl_ptr + 1); // we draw on the back buffer
-  clear_screen(); // pixel_buffer_start points to the pixel buffer
+void flip_screen(){
+	volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
+	wait_for_vsync(); 
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); 
 }
 
 void clear_screen() {
@@ -90,3 +98,4 @@ void wait_for_vsync() {
     status = *(pixel_ctrl_ptr + 3);
   } // loop/function exits when status bit goes to 0
 }
+

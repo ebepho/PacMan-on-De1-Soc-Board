@@ -1,13 +1,5 @@
 #include "ps2.h"
 
-volatile int * PS2_ptr = (int *) 0xFF200100;  // PS/2 port address
-
-void PS2_ISR_setup() {
-    PS2_ptr = (int *) 0xFF200100;	// PS/2 port address
-    int PS2_data, RVALID;
-    static int byte1 = 0, byte2 = 0, byte3 = 0;
-}
-
 void PS2_ISR(void) {
     PS2_data = *(PS2_ptr);	// read the Data register in the PS/2 port
     RVALID = (PS2_data & 0x8000);	// extract the RVALID field
@@ -27,5 +19,5 @@ void PS2_ISR(void) {
     }
 
     // Display last byte on Red LEDs
-    // *RLEDs = byte3;
+    *RLEDs = byte3;
 }
