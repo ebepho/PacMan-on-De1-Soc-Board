@@ -16,6 +16,8 @@ struct Player{
   int x_prev;
   int y_prev;
 
+
+
 };
 
 // Dots
@@ -115,8 +117,8 @@ int main(void)
       game_setup(); 
 
       while (!game_over){
-          move_player(); 
-		  PS2_ISR();
+        move_player(); 
+		    PS2_ISR();
       }
     }
 }
@@ -132,6 +134,7 @@ void game_setup() {
 }
 
 
+
 void move_player() {
   if(valid_move()){
     erase_player();
@@ -140,33 +143,56 @@ void move_player() {
   }
 }
 
-bool valid_move() {
-  // TAKE IN KEYBOARD INPUT
-  
-  //depending on the key pressed, change delat x and delta y
-  //if (x + new_dx) at a wall (in x directoin)
-    // -> keep dx = 0
 
-  //if (y + new_dy) at a wall (in y direction):
-    // -> keep dy = 0
+
+bool valid_move() {
+  int temp_dx = player1.dx, temp_dy = player1.dy;
+
+  // move player
+  if(byte3 == 0b11101010){
+      temp_dx = 0;
+      temp_dy = 1;
+  } 
+  else if (byte3 == 0b1110010){
+      temp_dx = 0;
+      temp_dy = -1;
+  }
+  else if (byte3 == 0b1110100){
+      temp_dx = 1;
+      temp_dy = 0;
+  }
+  else if (byte3 == 0b1101011){
+      temp_dx = -1;
+      temp_dy = 0;
+  }
+
+  // check if new position is at a pac-dot
+  if(player1.x + temp_dx && player1.y + temp_dy){
+    player1.dx = temp_dx;
+    player1.dy = temp_dy;
+    return true;
+  }
+
+  return false;
 }
 
 void erase_player() {
   // ERASE (at old position)
+
 }
 
 void update_player() {
-  //reset Player.x and Player.y to Player.x_prev and Player.y_prev
-  // move player
-  //change Player.x and Player.y += some delta depending on key pressed
-
-  // check if new position is at a pac-dot
+  player1.x_prev = player1.x;
+  player1.y_prev = player1.y;
+  
+  player1.x +=player1.dx;
+  player1.y +=player1.dy;
 }
 
 void draw_player() {
   // DRAW (at new position)
-}
 
+}
 
 // ---------------------------- GRAPHICS.C ----------------------------
 void draw_setup() {
@@ -189,11 +215,13 @@ void draw_setup() {
     clear_screen(); // pixel_buffer_start points to the pixel buffer
 }
 
+
 void flip_screen(){
 	volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
 	wait_for_vsync(); 
     pixel_buffer_start = *(pixel_ctrl_ptr + 1); 
 }
+
 
 void clear_screen() {
   for(int x = 0; x < 320; x++){
@@ -203,11 +231,13 @@ void clear_screen() {
   }
 }
 
+
 void plot_pixel(int x, int y, short int line_color) {
     volatile short int *one_pixel_address;  
     one_pixel_address = pixel_buffer_start + (y << 10) + (x << 1);
     *one_pixel_address = line_color;
 }
+
 
 void draw_line(int x0, int y0, int x1, int y1, short int colour) {
     bool isSteep = abs(y1 - y0) > abs(x1 - x0)? true: false;
