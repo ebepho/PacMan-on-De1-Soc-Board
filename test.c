@@ -322,9 +322,10 @@ void game_setup() {
   player1.x_prev = player1.x;
   player1.y_prev = player1.y;
   
-  player1.pac_r[0] = pac_000;
-  player1.pac_r[1] = pac_001;
-  player1.pac_r[2] = pac_002;
+	 player1.pac_r[0] = pac_000;
+	 player1.pac_r[1] = pac_000;
+	 player1.pac_r[2] = pac_000;
+
 }
 
 
@@ -346,18 +347,31 @@ bool valid_move() {
   if(byte3 == 0b1110010){
       temp_dx = 0;
       temp_dy = 1;
+
+	  	  	player1.pac_r[0] = pac_000;
+		player1.pac_r[1] = pac_HOD;
+		player1.pac_r[2] = pac_OD;
   } 
   else if (byte3 == 0b1110101){
       temp_dx = 0;
       temp_dy = -1;
+	  	  	player1.pac_r[0] = pac_000;
+		player1.pac_r[1] = pac_HOU;
+		player1.pac_r[2] = pac_OU;
   }
   else if (byte3 == 0b1110100){
       temp_dx = 1;
       temp_dy = 0;
+	  	player1.pac_r[0] = pac_000;
+		player1.pac_r[1] = pac_001;
+		player1.pac_r[2] = pac_002;
   }
   else if (byte3 == 0b1101011){
       temp_dx = -1;
       temp_dy = 0;
+	  	    player1.pac_r[0] = pac_000;
+  player1.pac_r[1] = pac_003;
+  player1.pac_r[2] = pac_004;
   }
 
   // check if new position is at a pac-dot
