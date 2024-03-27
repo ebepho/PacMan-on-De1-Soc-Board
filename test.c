@@ -96,7 +96,7 @@ struct Player{
   int x_prev;
   int y_prev;
 
-  unsigned short *pac_r[3] = {pac_000, pac_001, pac_002};
+  unsigned short *pac_r[3];
 
   int sprite_num;
 };
@@ -166,6 +166,7 @@ void draw_line(int x0, int y0, int x1, int y1, short int colour);
 void swap(int* a, int*b);
 void wait_for_vsync();
 void flip_screen();
+void sprite_draw(unsigned short sprite[], int x, int y);
 
 
 // ---------------------------- PS2.H ----------------------------
@@ -191,20 +192,18 @@ void draw_player();
 int main(void)
 {
     volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
-    draw_setup(); 
+    draw_setup();
+	game_setup(); 	
 	
     while (1)
     { 
-      game_setup(); 
-
-      //while (!game_over){
+		
+		PS2_ISR();
         move_player(); 
-		    PS2_ISR();
-
+		
         // Update the buffers
         wait_for_vsync(); // swap front and back buffers on VGA vertical sync
         pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
-      //}
     }
 }
 
@@ -216,6 +215,10 @@ void game_setup() {
 
   player1.x_prev = player1.x;
   player1.y_prev = player1.y;
+  
+  player1.pac_r[0] = pac_000;
+  player1.pac_r[1] = pac_001;
+  player1.pac_r[2] = pac_002;
 }
 
 
@@ -234,11 +237,11 @@ bool valid_move() {
   int temp_dx = player1.dx, temp_dy = player1.dy;
 
   // move player
-  if(byte3 == 0b11101010){
+  if(byte3 == 0b1110010){
       temp_dx = 0;
       temp_dy = 1;
   } 
-  else if (byte3 == 0b1110010){
+  else if (byte3 == 0b1110101){
       temp_dx = 0;
       temp_dy = -1;
   }
@@ -252,7 +255,7 @@ bool valid_move() {
   }
 
   // check if new position is at a pac-dot
-  if(player1.x + temp_dx && player1.y + temp_dy){
+  if(/*player1.x + temp_dx  && player1.y + temp_dy*/1){
     player1.dx = temp_dx;
     player1.dy = temp_dy;
     return true;
@@ -263,6 +266,16 @@ bool valid_move() {
 
 void erase_player() {
   // ERASE (at old position)
+  int sxi, syi;
+  int xi, yi;
+  
+  for (sxi = 0; sxi < 16; sxi++) {
+    for (syi = 0; syi < 16; syi++) {
+      xi = player1.x_prev + sxi;
+      yi = player1.y_prev + syi;
+      plot_pixel(xi, yi, 0x0000);
+    }
+  }
 
 }
 
@@ -270,15 +283,15 @@ void update_player() {
   player1.x_prev = player1.x;
   player1.y_prev = player1.y;
   
-  player1.x +=player1.dx;
-  player1.y +=player1.dy;
+  player1.x += player1.dx;
+  player1.y += player1.dy;
 }
 
 void draw_player() {
   // DRAW (at new position)
   sprite_draw(player1.pac_r[player1.sprite_num], player1.x, player1.y);
   player1.sprite_num = (player1.sprite_num + 1) % 3;
-  // waitasec(4);
+  waitasec(4);
 }
 
 void sprite_draw(unsigned short sprite[], int x, int y) {
