@@ -175,6 +175,7 @@ struct timer_t {
 };
 struct timer_t *const timer = (struct timer_t *)0xFF202000;
 #define TIMERSEC 100000000
+
 void waitasec(int pow_fraction) {
   unsigned int t = TIMERSEC >> pow_fraction;
   timer->control = 0x8;  // stop the timer
@@ -182,8 +183,7 @@ void waitasec(int pow_fraction) {
   timer->periodlo = (t & 0x0000FFFF);
   timer->periodhi = (t & 0xFFFF0000) >> 16;
   timer->control = 0x4;
-  while ((timer->status & 0x1) == 0)
-    ;
+  while ((timer->status & 0x1) == 0);
   timer->status = 0;  // reset TO
 }
 
@@ -193,40 +193,34 @@ struct Player{
   int x;
   int y;
 
-  int dx;
-  int dy;
-
-  // bool ghost;
-  // bool alive;
-
   int x_prev;
   int y_prev;
+
+  int dx;
+  int dy;
 
   unsigned short *pac_r[3];
 
   int sprite_num;
 };
 
-// Dots
-struct Dots{
-  int x;
-  int y;
-
-  // bool alive;
-
-  int x_prev;
-  int y_prev;
-};
 
 // Ghost
 struct Ghost{
   int x;
   int y;
 
-  // bool alive;
-  
   int x_prev;
   int y_prev;
+
+  int dx;
+  int dy;
+
+  unsigned int timer;
+  bool edible;
+  bool jail;
+  unsigned short *sprite;
+
 };
 
 // Score 
@@ -256,9 +250,9 @@ short int Map[240][512];
 int game_countdown;
 bool game_over;
 
-// Player
+// Game Entities
 struct Player player1;
-
+struct Ghost ghosts[4];
 
 // -------------------------- GRAPHICS.H --------------------------
 volatile int pixel_buffer_start; // global variable
@@ -288,32 +282,47 @@ void PS2_ISR();
 
 // -------------------------- MAIN.CPP --------------------------
 void game_setup();
+
 void move_player();
 bool valid_move();
 void erase_player();
 void update_player();
 void draw_player();
 
+void check_if_eaten();
+void check_pacdots();
+
+void move_ghosts();
+void erase_ghosts();
+void ghost_ai();
+void update_ghosts();
+void draw_ghosts();
+
 
 int main(void)
 {
     volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
     draw_setup();
-	game_setup(); 	
+	  game_setup(); 	
 	
     while (1)
     { 
-		
-		PS2_ISR();
+      // For every 2 moves the player makes, the ghosts will move once
+      for(int i = 0; i < 2; i++){
+        PS2_ISR();
         move_player(); 
-		
-        // Update the buffers
-        wait_for_vsync(); // swap front and back buffers on VGA vertical sync
-        pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
+        check_if_eaten();
+        check_pacdots();
+        waitasec(4);
+      }
+
+      move_ghosts(); 
+
+      waitasec(1);
+      wait_for_vsync(); // swap front and back buffers on VGA vertical sync
+      pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
     }
 }
-
-
 
 void game_setup() {
   player1.x = 120;
@@ -322,10 +331,41 @@ void game_setup() {
   player1.x_prev = player1.x;
   player1.y_prev = player1.y;
   
-	 player1.pac_r[0] = pac_000;
-	 player1.pac_r[1] = pac_000;
-	 player1.pac_r[2] = pac_000;
+  player1.pac_r[0] = pac_000;
+  player1.pac_r[1] = pac_000;
+  player1.pac_r[2] = pac_000;
 
+  ghosts[0].x = 120; // Example starting position
+  ghosts[0].y = 100;
+  ghosts[0].dx = 0;
+  ghosts[0].dy = 0;
+  ghosts[0].edible = false;
+  ghosts[0].jail = false;
+  ghosts[0].timer = 0;
+  
+  ghosts[1].x = 120; // Example starting position
+  ghosts[1].y = 100;
+  ghosts[1].dx = 0;
+  ghosts[1].dy = 0;
+  ghosts[1].edible = false;
+  ghosts[1].jail = true;
+  ghosts[1].timer = 4;
+
+  ghosts[2].x = 120; // Example starting position
+  ghosts[2].y = 100;
+  ghosts[2].dx = 0;
+  ghosts[2].dy = 0;
+  ghosts[2].edible = false;
+  ghosts[2].jail = true;
+  ghosts[2].timer = 8;
+
+  ghosts[3].x = 120; // Example starting position
+  ghosts[3].y = 100;
+  ghosts[3].dx = 0;
+  ghosts[3].dy = 0;
+  ghosts[3].edible = false;
+  ghosts[3].jail = true;
+  ghosts[3].timer = 12;
 }
 
 
@@ -345,37 +385,36 @@ bool valid_move() {
 
   // move player
   if(byte3 == 0b1110010){
-      temp_dx = 0;
-      temp_dy = 1;
-
-	  	  	player1.pac_r[0] = pac_000;
+    temp_dx = 0;
+    temp_dy = 1;
+	  player1.pac_r[0] = pac_000;
 		player1.pac_r[1] = pac_HOD;
 		player1.pac_r[2] = pac_OD;
   } 
   else if (byte3 == 0b1110101){
-      temp_dx = 0;
-      temp_dy = -1;
-	  	  	player1.pac_r[0] = pac_000;
+    temp_dx = 0;
+    temp_dy = -1;
+	  player1.pac_r[0] = pac_000;
 		player1.pac_r[1] = pac_HOU;
 		player1.pac_r[2] = pac_OU;
   }
   else if (byte3 == 0b1110100){
-      temp_dx = 1;
-      temp_dy = 0;
-	  	player1.pac_r[0] = pac_000;
-		player1.pac_r[1] = pac_001;
-		player1.pac_r[2] = pac_002;
+    temp_dx = 1;
+    temp_dy = 0;
+    player1.pac_r[0] = pac_000;
+    player1.pac_r[1] = pac_001;
+    player1.pac_r[2] = pac_002;
   }
   else if (byte3 == 0b1101011){
-      temp_dx = -1;
-      temp_dy = 0;
-	  	    player1.pac_r[0] = pac_000;
-  player1.pac_r[1] = pac_003;
-  player1.pac_r[2] = pac_004;
+    temp_dx = -1;
+    temp_dy = 0;
+    player1.pac_r[0] = pac_000;
+    player1.pac_r[1] = pac_003;
+    player1.pac_r[2] = pac_004;
   }
 
   // check if new position is at a pac-dot
-  if(/*player1.x + temp_dx  && player1.y + temp_dy*/1){
+  if((player1.x + temp_dx < 240) && (player1.x + temp_dx > 0)  && (player1.y + temp_dy < 120) && (player1.y + temp_dy > 0)){
     player1.dx = temp_dx;
     player1.dy = temp_dy;
     return true;
@@ -411,7 +450,160 @@ void draw_player() {
   // DRAW (at new position)
   sprite_draw(player1.pac_r[player1.sprite_num], player1.x, player1.y);
   player1.sprite_num = (player1.sprite_num + 1) % 3;
-  waitasec(4);
+  
+}
+
+
+
+void check_if_eaten(){
+  // Check if player has eaten a ghost
+  for(int i = 0; i < 4; i++){
+    if(ghosts[i].x == player1.x && ghosts[i].y == player1.y){
+      if(ghosts[i].edible){
+        // Ghost is eaten
+        ghosts[i].jail = true;
+        ghosts[i].timer = 4;
+      }
+      else{
+        // Player is eaten
+        game_over = true;
+      }
+    }
+  }
+}
+
+void check_pacdots(){
+  // Check if player has eaten a pac-dot
+  if(Map[player1.x][player1.y] == 1){
+    Map[player1.x][player1.y] = 0;
+    // Increase score
+  }
+}
+
+
+void move_ghosts(){
+  for(int i = 0; i < 4; i++){
+    erase_ghosts();
+    ghost_ai();
+    update_ghosts();
+    draw_ghosts();
+  }
+}
+
+void erase_ghosts(){
+  // ERASE (at old position)
+  int sxi, syi;
+  int xi, yi;
+  for(int i = 0; i < 4; i++){
+    if(ghosts[i].jail){
+      continue;
+    }
+
+    for (sxi = 0; sxi < 16; sxi++) {
+      for (syi = 0; syi < 16; syi++) {
+        xi = ghosts[i].x_prev + sxi;
+        yi = ghosts[i].y_prev + syi;
+        plot_pixel(xi, yi, 0x0000);
+      }
+    }
+  }
+}
+
+void ghost_ai(){
+  for(int i = 0; i < 4; i++){
+    if(ghosts[i].jail){
+      continue;
+    }
+
+    // Check if ghost is close enough to the player
+    int distance = abs(ghosts[i].x - player1.x) + abs(ghosts[i].y - player1.y);
+    if(distance <= 10){
+      if(ghosts[i].edible){
+        // Move away from the player
+        if(ghosts[i].x < player1.x){
+          ghosts[i].dx = -1;
+          ghosts[i].dy = 0;
+        }
+        else if(ghosts[i].x > player1.x){
+          ghosts[i].dx = 1;
+          ghosts[i].dy = 0;
+        }
+        else if(ghosts[i].y < player1.y){
+          ghosts[i].dx = 0;
+          ghosts[i].dy = -1;
+        }
+        else if(ghosts[i].y > player1.y){
+          ghosts[i].dx = 0;
+          ghosts[i].dy = 1;
+        }
+      }
+      else{
+        // Move towards the player
+        if(ghosts[i].x < player1.x){
+          ghosts[i].dx = 1;
+          ghosts[i].dy = 0;
+        }
+        else if(ghosts[i].x > player1.x){
+          ghosts[i].dx = -1;
+          ghosts[i].dy = 0;
+        }
+        else if(ghosts[i].y < player1.y){
+          ghosts[i].dx = 0;
+          ghosts[i].dy = 1;
+        }
+        else if(ghosts[i].y > player1.y){
+          ghosts[i].dx = 0;
+          ghosts[i].dy = -1;
+        }
+      }
+    }
+    else{
+      // Random movement
+      int rand_num = rand() % 4;
+      if(rand_num == 0){
+        ghosts[i].dx = 0;
+        ghosts[i].dy = 1;
+      }
+      else if(rand_num == 1){
+        ghosts[i].dx = 0;
+        ghosts[i].dy = -1;
+      }
+      else if(rand_num == 2){
+        ghosts[i].dx = 1;
+        ghosts[i].dy = 0;
+      }
+      else if(rand_num == 3){
+        ghosts[i].dx = -1;
+        ghosts[i].dy = 0;
+      }
+    }
+  }
+}
+
+void update_ghosts(){
+  for(int i = 0; i < 4; i++){
+    if(ghosts[i].jail){
+      ghosts[i].timer--;
+      continue;
+    }
+
+    ghosts[i].x_prev = ghosts[i].x;
+    ghosts[i].y_prev = ghosts[i].y;
+    
+    ghosts[i].x += ghosts[i].dx;
+    ghosts[i].y += ghosts[i].dy;
+  }
+}
+
+void draw_ghosts(){
+  for(int i = 0; i < 4; i++){
+    if(ghosts[i].jail){
+      continue;
+    }
+
+    sprite_draw(ghosts[i].sprite, ghosts[i].x, ghosts[i].y);
+  }
+
 }
 
 void sprite_draw(unsigned short sprite[], int x, int y) {
