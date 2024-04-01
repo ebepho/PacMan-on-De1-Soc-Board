@@ -303,22 +303,19 @@ int main(void)
 {
     volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
     draw_setup();
-	  game_setup(); 	
+	game_setup(); 	
 	
     while (1)
     { 
       // For every 2 moves the player makes, the ghosts will move once
-      for(int i = 0; i < 2; i++){
-        PS2_ISR();
-        move_player(); 
-        check_if_eaten();
-        check_pacdots();
-        waitasec(4);
-      }
+	  PS2_ISR();
+	  move_player(); 
+	  check_if_eaten();
+	  check_pacdots();
+	  
+	  waitasec(4);
 
-      move_ghosts(); 
-
-      waitasec(1);
+      // move_ghosts(); 
       wait_for_vsync(); // swap front and back buffers on VGA vertical sync
       pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
     }
@@ -349,7 +346,7 @@ void game_setup() {
   ghosts[1].dy = 0;
   ghosts[1].edible = false;
   ghosts[1].jail = true;
-  ghosts[1].timer = 4;
+  ghosts[1].timer = 4*100000000;
 
   ghosts[2].x = 120; // Example starting position
   ghosts[2].y = 100;
@@ -357,7 +354,7 @@ void game_setup() {
   ghosts[2].dy = 0;
   ghosts[2].edible = false;
   ghosts[2].jail = true;
-  ghosts[2].timer = 8;
+  ghosts[2].timer = 8*100000000;
 
   ghosts[3].x = 120; // Example starting position
   ghosts[3].y = 100;
@@ -365,7 +362,7 @@ void game_setup() {
   ghosts[3].dy = 0;
   ghosts[3].edible = false;
   ghosts[3].jail = true;
-  ghosts[3].timer = 12;
+  ghosts[3].timer = 12*100000000;
 }
 
 
@@ -414,7 +411,7 @@ bool valid_move() {
   }
 
   // check if new position is at a pac-dot
-  if((player1.x + temp_dx < 240) && (player1.x + temp_dx > 0)  && (player1.y + temp_dy < 120) && (player1.y + temp_dy > 0)){
+  if(/*(player1.x + temp_dx < 240) && (player1.x + temp_dx > 0)  && (player1.y + temp_dy < 120) && (player1.y + temp_dy > 0)*/1){
     player1.dx = temp_dx;
     player1.dy = temp_dy;
     return true;
@@ -462,7 +459,7 @@ void check_if_eaten(){
       if(ghosts[i].edible){
         // Ghost is eaten
         ghosts[i].jail = true;
-        ghosts[i].timer = 4;
+        ghosts[i].timer = 4*100000000;
       }
       else{
         // Player is eaten
