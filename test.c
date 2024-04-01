@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 //
-unsigned short maze[] = {
+unsigned short map[] = {
     0x000000, 0x000000, 0x000000, 0x000003, 0x010104, 0x010104, 0x131394,
     0x2020fb, 0x2020fb, 0x2020fb, 0x2020fb, 0x2020fb, 0x2020fb, 0x2020fb,
     0x2020fb, 0x2020fb, 0x2020fb, 0x2020fb, 0x2020fb, 0x2020fb, 0x2020fb,
@@ -12852,6 +12852,7 @@ void PS2_ISR();
 
 // -------------------------- MAIN.CPP --------------------------
 void game_setup();
+void map_draw(unsigned short maze[]);
 
 void move_player();
 bool valid_move();
@@ -12872,7 +12873,15 @@ int main(void) {
   volatile int *pixel_ctrl_ptr = (int *)0xFF203020;
   draw_setup();
   game_setup();
-  map_draw(map[]);
+  map_draw(map);
+  
+  wait_for_vsync();
+  pixel_buffer_start = *(pixel_ctrl_ptr + 1);  // new back buffer
+  
+  map_draw(map); 
+  
+  wait_for_vsync();
+  pixel_buffer_start = *(pixel_ctrl_ptr + 1);  // new back buffer
 
   while (1) {
     // For every 2 moves the player makes, the ghosts will move once
@@ -12883,7 +12892,7 @@ int main(void) {
 
     waitasec(4);
 
-    // move_ghosts();
+    move_ghosts();
     wait_for_vsync();  // swap front and back buffers on VGA vertical sync
     pixel_buffer_start = *(pixel_ctrl_ptr + 1);  // new back buffer
   }
@@ -12926,7 +12935,7 @@ void map_draw(unsigned short maze[]) {
   int xi, yi;
   for (xi = 0; xi < 360; xi++)
     for (yi = 0; yi < 240; yi++) {
-      plot_pixel(xi, yi, maze[yi * 240 + xi]);
+      plot_pixel(xi, yi, maze[yi * 360 + xi]);
     }
 }
 
@@ -13060,7 +13069,7 @@ void ghost_ai() {
 
     // Check if ghost is close enough to the player
     int distance = abs(ghosts[i].x - player1.x) + abs(ghosts[i].y - player1.y);
-    if (distance <= 10) {
+    if (distance <= 20) {
       if (ghosts[i].edible) {
         // Move away from the player
         if (ghosts[i].x < player1.x) {
@@ -13093,7 +13102,7 @@ void ghost_ai() {
         }
       }
     } else {
-      // Random movement
+      // Random movement - CHANGE TO MAKE IT MOVE RANDOMLY ONLY WHEN YOU REACH A JUNCTION
       int rand_num = rand() % 4;
       if (rand_num == 0) {
         ghosts[i].dx = 0;
@@ -13133,7 +13142,7 @@ void draw_ghosts() {
       continue;
     }
 
-    sprite_draw(ghosts[i].sprite_normal, ghosts[i].x, ghosts[i].y);
+    sprite_draw(ghosts[i].sprite_normal[0], ghosts[i].x, ghosts[i].y);
   }
 }
 
