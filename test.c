@@ -13111,36 +13111,37 @@ void ghost_ai() {
         // Random movement - CHANGE TO MAKE IT MOVE RANDOMLY ONLY WHEN YOU REACH A JUNCTION
         int num_available_moves = 0;
         int available_moves[4][2];
+		
+		int x = ghosts[i].x + ghosts[i].width;
+		int y = ghosts[i].y + ghosts[i].width;
+	
+		if (!(map[x + 1 + y * 360] != 0x0000)) {
+			available_moves[num_available_moves][0] = 1;
+			available_moves[num_available_moves][1] = 0;
+			num_available_moves++;
+		}
 
-        for (int i = 0; i < 4; i++) {
-            if (!(map[ghosts[i].x + 1 + ghosts[i].width][ghosts[i].y + 0 + ghosts[i].width] != 0x0000)) {
-                available_moves[num_available_moves][0] = 1;
-                available_moves[num_available_moves][1] = 0;
-                num_available_moves++;
-            }
+		if (!(map[x - 1 + y * 360] != 0x0000)) {
+			available_moves[num_available_moves][0] = -1;
+			available_moves[num_available_moves][1] = 0;
+			num_available_moves++;
+		}
 
-            if (!(map[ghosts[i].x - 1 - ghosts[i].width][ghosts[i].y + 0 + ghosts[i].width] != 0x0000)) {
-                available_moves[num_available_moves][0] = -1;
-                available_moves[num_available_moves][1] = 0;
-                num_available_moves++;
-            }
+		if (!(map[x + (y + 1) * 360] != 0x0000)) {
+			available_moves[num_available_moves][0] = 0;
+			available_moves[num_available_moves][1] = 1;
+			num_available_moves++;
+		}
 
-            if (!(map[ghosts[i].x + 0 + ghosts[i].width][ghosts[i].y + 1 + ghosts[i].width] != 0x0000)) {
-                available_moves[num_available_moves][0] = 0;
-                available_moves[num_available_moves][1] = 1;
-                num_available_moves++;
-            }
+		if (!(map[x + (y - 1) * 360] != 0x0000)) {
+			available_moves[num_available_moves][0] = 0;
+			available_moves[num_available_moves][1] = -1;
+			num_available_moves++;
+		}
 
-            if (!(map[ghosts[i].x + 0 + ghosts[i].width][ghosts[i].y - 1 - ghosts[i].width] != 0x0000)) {
-                available_moves[num_available_moves][0] = 0;
-                available_moves[num_available_moves][1] = -1;
-                num_available_moves++;
-            }
-
-            int rand_num = rand() % num_available_moves;
-            ghosts[i].dx = available_moves[rand_num][0];
-            ghosts[i].dy = available_moves[rand_num][1];
-        }
+		int rand_num = rand() % num_available_moves;
+		ghosts[i].dx = available_moves[rand_num][0];
+		ghosts[i].dy = available_moves[rand_num][1];
     }
   }
 }
