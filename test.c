@@ -164,6 +164,24 @@ unsigned short pac_OD[] = {  0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0
   0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 
   0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
 };
+
+unsigned short ghost_1[] = {  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 
+  0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200, 0x626200
+};
 // -------------------------- TIMER DELAY --------------------------
 struct timer_t {
   volatile unsigned int status;
@@ -199,7 +217,7 @@ struct Player{
   int dx;
   int dy;
 
-  unsigned short *pac_r[3];
+  unsigned short *sprite[3];
 
   int sprite_num;
 };
@@ -219,8 +237,12 @@ struct Ghost{
   unsigned int timer;
   bool edible;
   bool jail;
-  unsigned short *sprite;
 
+  unsigned short *sprite_normal[1];
+  unsigned short *sprite_edbile[1];
+  unsigned short *sprite_glitch[1];
+
+  int sprite_num;
 };
 
 // Score 
@@ -303,17 +325,17 @@ int main(void)
 {
     volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
     draw_setup();
-	game_setup(); 	
+	  game_setup(); 	
 	
     while (1)
     { 
       // For every 2 moves the player makes, the ghosts will move once
-	  PS2_ISR();
-	  move_player(); 
-	  check_if_eaten();
-	  check_pacdots();
-	  
-	  waitasec(4);
+      PS2_ISR();
+      move_player(); 
+      // check_if_eaten();
+      // check_pacdots();
+      
+      waitasec(4);
 
       // move_ghosts(); 
       wait_for_vsync(); // swap front and back buffers on VGA vertical sync
@@ -323,46 +345,28 @@ int main(void)
 
 void game_setup() {
   player1.x = 120;
-  player1.y = 160;
+  player1.y = 40;
 
   player1.x_prev = player1.x;
   player1.y_prev = player1.y;
   
-  player1.pac_r[0] = pac_000;
-  player1.pac_r[1] = pac_000;
-  player1.pac_r[2] = pac_000;
+  player1.sprite[0] = pac_000;
+  player1.sprite[1] = pac_000;
+  player1.sprite[2] = pac_000;
 
-  ghosts[0].x = 120; // Example starting position
-  ghosts[0].y = 100;
-  ghosts[0].dx = 0;
-  ghosts[0].dy = 0;
-  ghosts[0].edible = false;
-  ghosts[0].jail = false;
-  ghosts[0].timer = 0;
   
-  ghosts[1].x = 120; // Example starting position
-  ghosts[1].y = 100;
-  ghosts[1].dx = 0;
-  ghosts[1].dy = 0;
-  ghosts[1].edible = false;
-  ghosts[1].jail = true;
-  ghosts[1].timer = 4*100000000;
+  for (int i = 0; i < 4; i++) {
+    ghosts[i].x = 120 + 16 *i + 4; // Example starting position
+    ghosts[i].y = 100;
+    ghosts[i].dx = 0;
+    ghosts[i].dy = 0;
+    ghosts[i].edible = false;
+    ghosts[i].jail = true;
+    ghosts[i].timer = i * 4 * 100000000;
+    ghosts[i].sprite_normal[0] = ghost_1;
+  }
 
-  ghosts[2].x = 120; // Example starting position
-  ghosts[2].y = 100;
-  ghosts[2].dx = 0;
-  ghosts[2].dy = 0;
-  ghosts[2].edible = false;
-  ghosts[2].jail = true;
-  ghosts[2].timer = 8*100000000;
-
-  ghosts[3].x = 120; // Example starting position
-  ghosts[3].y = 100;
-  ghosts[3].dx = 0;
-  ghosts[3].dy = 0;
-  ghosts[3].edible = false;
-  ghosts[3].jail = true;
-  ghosts[3].timer = 12*100000000;
+  ghosts[0].jail = false;
 }
 
 
@@ -384,30 +388,30 @@ bool valid_move() {
   if(byte3 == 0b1110010){
     temp_dx = 0;
     temp_dy = 1;
-	  player1.pac_r[0] = pac_000;
-		player1.pac_r[1] = pac_HOD;
-		player1.pac_r[2] = pac_OD;
+	  player1.sprite[0] = pac_000;
+		player1.sprite[1] = pac_HOD;
+		player1.sprite[2] = pac_OD;
   } 
   else if (byte3 == 0b1110101){
     temp_dx = 0;
     temp_dy = -1;
-	  player1.pac_r[0] = pac_000;
-		player1.pac_r[1] = pac_HOU;
-		player1.pac_r[2] = pac_OU;
+	  player1.sprite[0] = pac_000;
+		player1.sprite[1] = pac_HOU;
+		player1.sprite[2] = pac_OU;
   }
   else if (byte3 == 0b1110100){
     temp_dx = 1;
     temp_dy = 0;
-    player1.pac_r[0] = pac_000;
-    player1.pac_r[1] = pac_001;
-    player1.pac_r[2] = pac_002;
+    player1.sprite[0] = pac_000;
+    player1.sprite[1] = pac_001;
+    player1.sprite[2] = pac_002;
   }
   else if (byte3 == 0b1101011){
     temp_dx = -1;
     temp_dy = 0;
-    player1.pac_r[0] = pac_000;
-    player1.pac_r[1] = pac_003;
-    player1.pac_r[2] = pac_004;
+    player1.sprite[0] = pac_000;
+    player1.sprite[1] = pac_003;
+    player1.sprite[2] = pac_004;
   }
 
   // check if new position is at a pac-dot
@@ -445,7 +449,7 @@ void update_player() {
 
 void draw_player() {
   // DRAW (at new position)
-  sprite_draw(player1.pac_r[player1.sprite_num], player1.x, player1.y);
+  sprite_draw(player1.sprite[player1.sprite_num], player1.x, player1.y);
   player1.sprite_num = (player1.sprite_num + 1) % 3;
   
 }
@@ -598,7 +602,7 @@ void draw_ghosts(){
       continue;
     }
 
-    sprite_draw(ghosts[i].sprite, ghosts[i].x, ghosts[i].y);
+    sprite_draw(ghosts[i].sprite_normal, ghosts[i].x, ghosts[i].y);
   }
 
 }
