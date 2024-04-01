@@ -12769,6 +12769,7 @@ struct Player {
   int dy;
 
   unsigned short *sprite[3];
+  int width;
 
   int sprite_num;
 };
@@ -12791,6 +12792,8 @@ struct Ghost {
   unsigned short *sprite_normal[1];
   unsigned short *sprite_edbile[1];
   unsigned short *sprite_glitch[1];
+
+  int width;
 
   int sprite_num;
 };
@@ -12909,6 +12912,8 @@ void game_setup() {
   player1.sprite[1] = pac_000;
   player1.sprite[2] = pac_000;
 
+  player1.width = 16;
+
   for (int i = 0; i < 4; i++) {
     ghosts[i].x = 120 + 16 * i + 4;  // Example starting position
     ghosts[i].y = 100;
@@ -12918,6 +12923,7 @@ void game_setup() {
     ghosts[i].jail = true;
     ghosts[i].timer = i * 4 * 100000000;
     ghosts[i].sprite_normal[0] = ghost_1;
+    ghosts[i].width = 16;
   }
 
   ghosts[0].jail = false;
@@ -13102,21 +13108,39 @@ void ghost_ai() {
         }
       }
     } else {
-      // Random movement - CHANGE TO MAKE IT MOVE RANDOMLY ONLY WHEN YOU REACH A JUNCTION
-      int rand_num = rand() % 4;
-      if (rand_num == 0) {
-        ghosts[i].dx = 0;
-        ghosts[i].dy = 1;
-      } else if (rand_num == 1) {
-        ghosts[i].dx = 0;
-        ghosts[i].dy = -1;
-      } else if (rand_num == 2) {
-        ghosts[i].dx = 1;
-        ghosts[i].dy = 0;
-      } else if (rand_num == 3) {
-        ghosts[i].dx = -1;
-        ghosts[i].dy = 0;
-      }
+        // Random movement - CHANGE TO MAKE IT MOVE RANDOMLY ONLY WHEN YOU REACH A JUNCTION
+        int num_available_moves = 0;
+        int available_moves[4][2];
+
+        for (int i = 0; i < 4; i++) {
+            if (!(map[ghosts[i].x + 1 + ghosts[i].width][ghosts[i].y + 0 + ghosts[i].width] != 0x0000)) {
+                available_moves[num_available_moves][0] = 1;
+                available_moves[num_available_moves][1] = 0;
+                num_available_moves++;
+            }
+
+            if (!(map[ghosts[i].x - 1 - ghosts[i].width][ghosts[i].y + 0 + ghosts[i].width] != 0x0000)) {
+                available_moves[num_available_moves][0] = -1;
+                available_moves[num_available_moves][1] = 0;
+                num_available_moves++;
+            }
+
+            if (!(map[ghosts[i].x + 0 + ghosts[i].width][ghosts[i].y + 1 + ghosts[i].width] != 0x0000)) {
+                available_moves[num_available_moves][0] = 0;
+                available_moves[num_available_moves][1] = 1;
+                num_available_moves++;
+            }
+
+            if (!(map[ghosts[i].x + 0 + ghosts[i].width][ghosts[i].y - 1 - ghosts[i].width] != 0x0000)) {
+                available_moves[num_available_moves][0] = 0;
+                available_moves[num_available_moves][1] = -1;
+                num_available_moves++;
+            }
+
+            int rand_num = rand() % num_available_moves;
+            ghosts[i].dx = available_moves[rand_num][0];
+            ghosts[i].dy = available_moves[rand_num][1];
+        }
     }
   }
 }
