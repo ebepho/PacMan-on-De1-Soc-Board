@@ -13305,3 +13305,72 @@ void PS2_ISR(void) {
   // Display last byte on Red LEDs
   *RLEDs = byte3;
 }
+
+
+void dot_position() {
+  int s = 0;
+
+  //draw dots in x positons
+  for (int x = 0; x < 360; x += 20) {
+    sprite_pac_dot(x, 100);
+  }
+
+//draw dots in y position
+    for (int y = 0; y < 240; x += 10) {
+    sprite_pac_dot(100, y);
+  }
+
+}
+
+
+void draw_dot(int x, int y) {
+  for (int sxi = 0; sxi < 16; sxi++){
+    for (int syi = 0; syi < 16; syi++) {
+      int xi = x + sxi;
+      int yi = y + syi;
+      plot_pixel(xi, yi, pacdot[syi * 16 + sxi]);
+    }	
+  }
+}
+
+void erase_dot(int dotX, int dotY){
+    for(int xi = 0; xi < 16; xi++){
+        for(int yi = 0; yi < 16; yi++){
+            int x = dotX + xi;
+            int y = dotY + yi;
+            plot_pixel(x, y, 0x0000);
+        }
+    }
+}
+
+/*
+//have some array to hold the position of the dots
+void check_dot(int x, int y){
+    if (player1.x = ## && player1.y == ##){
+        erase_dot(##, ##);
+
+    }
+}
+*/
+unsigned short *dif_scor[10] = {zero, one, two, three, four, five, six, seven, eight, nine};
+
+void change_score(int tempScor){
+    int startX = 63;
+    while(tempScor != 0){
+        int d = tempScor % 10;
+        tempScor = tempScor / 10;
+        draw_score(startX, 200, diff_scor[d]);
+        startX -= 9;
+    }
+
+}
+
+void draw_score(int x, int y,unsigned short dif_scor[]){
+  for (int sxi = 0; sxi < 9; sxi++){
+    for (int syi = 0; syi < 9; syi++) {
+      int xi = x + sxi;
+      int yi = y + syi;
+      plot_pixel(xi, yi, dif_scor[syi * 9 + sxi]);
+    }	
+  }
+}
