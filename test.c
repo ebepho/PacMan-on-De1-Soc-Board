@@ -245,10 +245,6 @@ unsigned short map[]  = { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
 };
 
 
-
-#define GHOSTS_PATH_HEIGHT 240
-#define GHOSTS_PATH_WIDTH 320
-
 // array size is 153600
 unsigned short ghost_path[]  = {
   0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 
@@ -1018,6 +1014,7 @@ struct Player {
   int width;
 
   int sprite_num;
+  int sprite_num_prev;
 };
 
 // Ghost
@@ -1035,13 +1032,13 @@ struct Ghost {
   bool edible;
   bool jail;
 
-  unsigned short *sprite_normal[2];
-  unsigned short *sprite_edbile[1];
-  unsigned short *sprite_glitch[1];
+  unsigned short *sprite[2];
+
 
   int width;
 
   int sprite_num;
+  int sprite_num_prev
 };
 
 // Score
@@ -1066,8 +1063,9 @@ struct Timer {
 };
 
 // -------------------------- GLOBALS.H --------------------------
-// Map
-short int Map[240][512];
+#define MAP_WIDTH 320
+#define MAP_HEIGHT 240
+
 int game_countdown;
 bool game_over;
 
@@ -1077,8 +1075,8 @@ struct Ghost ghosts[4];
 
 // -------------------------- GRAPHICS.H --------------------------
 volatile int pixel_buffer_start;  // global variable
-short int Buffer1[240][512];
-short int Buffer2[240][512];
+short int Buffer1[MAP_HEIGHT][512];
+short int Buffer2[MAP_HEIGHT][512];
 
 void draw_setup();
 void clear_screen();
@@ -1109,7 +1107,7 @@ void erase_player();
 void update_player();
 void draw_player();
 
-void check_if_eaten();
+void check_ghosts();
 void check_pacdots();
 
 void move_ghosts();
@@ -1138,7 +1136,7 @@ int main(void) {
     // For every 2 moves the player makes, the ghosts will move once
     PS2_ISR();
     move_player();
-    // check_if_eaten();
+    // check_ghosts();
     // check_pacdots();
     move_ghosts();
 
@@ -1171,14 +1169,14 @@ void game_setup() {
     ghosts[i].edible = false;
     ghosts[i].jail = false;
     ghosts[i].timer = i * 4 * 100000000;
-    ghosts[i].width = 16;
+    ghosts[i].width = 14;
   }
 	
 	ghosts[0].x = 203;  // Example starting position
     ghosts[0].y = 101;	
     ghosts[0].dy = -1;	
-    ghosts[0].sprite_normal[0] = ghost_U1;
-    ghosts[0].sprite_normal[1] = ghost_U2;
+    ghosts[0].sprite[0] = ghost_U1;
+    ghosts[0].sprite[1] = ghost_U2;
 
     draw_player();
     draw_ghosts();
@@ -1199,9 +1197,9 @@ void move_player() {
 
 void map_draw(unsigned short maze[]) {
   int xi, yi;
-  for (xi = 0; xi < 320; xi++)
-    for (yi = 0; yi < 240; yi++) {
-      plot_pixel(xi, yi, maze[yi * 320 + xi]);
+  for (xi = 0; xi < MAP_WIDTH; xi++)
+    for (yi = 0; yi < MAP_HEIGHT; yi++) {
+      plot_pixel(xi, yi, maze[yi * MAP_WIDTH + xi]);
     }
 }
 
@@ -1226,7 +1224,7 @@ bool valid_move() {
   }
     
   // check if new position is at a pac-dot
-  if (ghost_path[player1.x + temp_dx + (player1.y + temp_dy) * 320] == 0xf881 || ghost_path[player1.x + temp_dx + (player1.y + temp_dy) * 320] == 0xf861) {
+  if (ghost_path[player1.x + temp_dx + (player1.y + temp_dy) * MAP_WIDTH] != 0xffff) {
     player1.dx = temp_dx;
     player1.dy = temp_dy;
     return true;
@@ -1240,8 +1238,8 @@ void erase_player() {
   int sxi, syi;
   int xi, yi;
 
-  for (sxi = 0; sxi < 16; sxi++) {
-    for (syi = 0; syi < 16; syi++) {
+  for (sxi = 0; sxi < player1.width; sxi++) {
+    for (syi = 0; syi < player1.width; syi++) {
       xi = player1.x_prev + sxi;
       yi = player1.y_prev + syi;
       plot_pixel(xi, yi, 0x0000);
@@ -1278,19 +1276,18 @@ void update_player() {
 
 void draw_player() {
   // DRAW (at new position)
-  sprite_draw(player1.sprite[player1.sprite_num], player1.x, player1.y, 16);
+  sprite_draw(player1.sprite[player1.sprite_num], player1.x, player1.y, player1.width);
   player1.sprite_num = (player1.sprite_num + 1) % 3;
 }
 
-void check_if_eaten() {
+void check_ghosts() {
   // Check if player has eaten a ghost
   for (int i = 0; i < 4; i++) {
     if (ghosts[i].x <= player1.x + ghosts[i].width && ghosts[i].x + ghosts[i].width >= player1.x &&
         ghosts[i].y <= player1.y + player1.width && ghosts[i].y + ghosts[i].width >= player1.y) {
       if (ghosts[i].edible) {
-        // Ghost is eaten
-        ghosts[i].jail = true;
-        ghosts[i].timer = 4 * 100000000;
+        ghosts[i].x = 203;
+        ghosts[i].y = 81;
       } else {
         // Player is eaten - CHANGE TO LIVES LATER
         game_over = true;
@@ -1301,8 +1298,8 @@ void check_if_eaten() {
 
 void check_pacdots() {
   // Check if player has eaten a pac-dot
-  if (Map[player1.x][player1.y] == 1) {
-    Map[player1.x][player1.y] = 0;
+  if (map[player1.x + player1.y] == 1) {
+    map[player1.x + player1.y * MAP_WIDTH] = 0;
     // Increase score
   }
 }
@@ -1323,11 +1320,15 @@ void erase_ghosts() {
       continue;
     }
 
-    for (sxi = 0; sxi < 16; sxi++) {
-      for (syi = 0; syi < 16; syi++) {
+    for (sxi = 0; sxi < ghosts[i].width; sxi++) {
+      for (syi = 0; syi < ghosts[i].width; syi++) {
         xi = ghosts[i].x_prev + sxi;
         yi = ghosts[i].y_prev + syi;
         plot_pixel(xi, yi, 0x0000);
+
+        if(ghosts[i].sprite[ghosts[i].sprite_num_prev][syi * ghosts[i].width + sxi] != 0x0000){
+            plot_pixel(xi, yi, 0x0000);
+        }
       }
     }
   }
@@ -1347,11 +1348,11 @@ void ghost_ai() {
         int available_moves[4][2];
 
         // Regular path - keep moving in the same direction
-        if(ghost_path[ghosts[i].x + ghosts[i].y * 320] == 0xf861 || ghost_path[ghosts[i].x + ghosts[i].y * 320] == 0xf881) {
+        if(ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == 0xf861 || ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == 0xf881) {
             continue;
         }
 
-        if(ghost_path[ghosts[i].x + ghosts[i].y * 320] == 0x005c){
+        if(ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == 0x005c){
             if(ghosts[i].dx != -1){
                 available_moves[num_available_moves][0] = 1;
                 available_moves[num_available_moves][1] = 0;
@@ -1367,7 +1368,7 @@ void ghost_ai() {
         else {
 
             // At Edges - can either go left or right, decide
-            if(ghost_path[ghosts[i].x + ghosts[i].y * 320] == 0x0061){
+            if(ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == 0x0061){
                 available_moves[num_available_moves][0] = 1;
                 available_moves[num_available_moves][1] = 0;
 
@@ -1379,11 +1380,11 @@ void ghost_ai() {
 
             else {
                 // Turn point - finish path if we're far away
-                if (distance > 80 && ghost_path[ghosts[i].x + ghosts[i].y * 320] == 0xfec1) {
+                if (distance > 80 && ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == 0xfec1) {
                     if(ghosts[i].dx  != 0) {
                         available_moves[0][0] = 0;
 
-                        if(ghost_path[ghosts[i].x + (ghosts[i].y + 1) * 320] != 0xffff) {
+                        if(ghost_path[ghosts[i].x + (ghosts[i].y + 1) * MAP_WIDTH] != 0xffff) {
                             available_moves[0][1] = 1;
                         }
                         else {
@@ -1395,7 +1396,7 @@ void ghost_ai() {
                     else {
                         available_moves[0][1] = 0;
 
-                        if(ghost_path[ghosts[i].x + 1 + ghosts[i].y * 320] != 0xffff) {
+                        if(ghost_path[ghosts[i].x + 1 + ghosts[i].y * MAP_WIDTH] != 0xffff) {
                             available_moves[0][0] = 1;
                         }
                         else {
@@ -1408,25 +1409,25 @@ void ghost_ai() {
 
                 // Thses are for if we're close enough to the player, move in the avaible direction
                 else {
-                    if(ghost_path[ghosts[i].x + 1 + ghosts[i].y * 320] != 0xffff && ghosts[i].dx != -1) {
+                    if(ghost_path[ghosts[i].x + 1 + ghosts[i].y * MAP_WIDTH] != 0xffff && ghosts[i].dx != -1) {
                         available_moves[num_available_moves][0] = 1;
                         available_moves[num_available_moves][1] = 0;
                         num_available_moves++;
                     }
 
-                    if(ghost_path[ghosts[i].x - 1 + ghosts[i].y * 320] != 0xffff && ghosts[i].dx != 1) {
+                    if(ghost_path[ghosts[i].x - 1 + ghosts[i].y * MAP_WIDTH] != 0xffff && ghosts[i].dx != 1) {
                         available_moves[num_available_moves][0] = -1;
                         available_moves[num_available_moves][1] = 0;
                         num_available_moves++;
                     }
                     
-                    if(ghost_path[ghosts[i].x + (ghosts[i].y + 1) * 320] != 0xffff && ghosts[i].dy != -1) {
+                    if(ghost_path[ghosts[i].x + (ghosts[i].y + 1) * MAP_WIDTH] != 0xffff && ghosts[i].dy != -1) {
                         available_moves[num_available_moves][0] = 0;
                         available_moves[num_available_moves][1] = 1;
                         num_available_moves++;
                     }
 
-                    if(ghost_path[ghosts[i].x + (ghosts[i].y - 1) * 320] != 0xffff && ghosts[i].dy != 1) {
+                    if(ghost_path[ghosts[i].x + (ghosts[i].y - 1) * MAP_WIDTH] != 0xffff && ghosts[i].dy != 1) {
                         available_moves[num_available_moves][0] = 0;
                         available_moves[num_available_moves][1] = -1;
                         num_available_moves++;
@@ -1525,20 +1526,20 @@ void update_ghosts() {
     }
 
     if(ghosts[i].dx == 1){
-        ghosts[i].sprite_normal[0] = ghost_L1;
-        ghosts[i].sprite_normal[1] = ghost_L2;
+        ghosts[i].sprite[0] = ghost_L1;
+        ghosts[i].sprite[1] = ghost_L2;
     }
     else if (ghosts[i].dx == -1){
-        ghosts[i].sprite_normal[0] = ghost_R1;
-        ghosts[i].sprite_normal[1] = ghost_R2;
+        ghosts[i].sprite[0] = ghost_R1;
+        ghosts[i].sprite[1] = ghost_R2;
     }
     else if (ghosts[i].dy == 1){
-        ghosts[i].sprite_normal[0] = ghost_D1;
-        ghosts[i].sprite_normal[1] = ghost_D2;
+        ghosts[i].sprite[0] = ghost_D1;
+        ghosts[i].sprite[1] = ghost_D2;
     }
     else if (ghosts[i].dy == -1){
-        ghosts[i].sprite_normal[0] = ghost_U1;
-        ghosts[i].sprite_normal[1] = ghost_U2;
+        ghosts[i].sprite[0] = ghost_U1;
+        ghosts[i].sprite[1] = ghost_U2;
     }
 
     ghosts[i].x_prev = ghosts[i].x;
@@ -1548,9 +1549,9 @@ void update_ghosts() {
     ghosts[i].y += ghosts[i].dy;
 
     if(ghosts[i].x == 98){
-        ghosts[i].x = 320;
+        ghosts[i].x = MAP_WIDTH;
     }
-    else if (ghosts[i].x == 320){
+    else if (ghosts[i].x == MAP_WIDTH){
         ghosts[i].x = 90;
     }
   }
@@ -1562,7 +1563,8 @@ void draw_ghosts() {
       continue;
     }
 
-    sprite_draw(ghosts[i].sprite_normal[ghosts[i].sprite_num ], ghosts[i].x, ghosts[i].y, 14);
+    sprite_draw(ghosts[i].sprite[ghosts[i].sprite_num ], ghosts[i].x, ghosts[i].y, 14);
+    ghosts[i].sprite_num_prev =  ghosts[i].sprite_num;
     ghosts[i].sprite_num = (ghosts[i].sprite_num + 1) % 2;
   }
 }
@@ -1610,8 +1612,8 @@ void flip_screen() {
 }
 
 void clear_screen() {
-  for (int x = 0; x < 320; x++) {
-    for (int y = 0; y < 240; y++) {
+  for (int x = 0; x < MAP_WIDTH; x++) {
+    for (int y = 0; y < MAP_HEIGHT; y++) {
       plot_pixel(x, y, 0x0000);
     }
   }
@@ -1712,12 +1714,12 @@ void dot_position() {
   int s = 0;
 
   //draw dots in x positons
-  for (int x = 0; x < 360; x += 20) {
+  for (int x = 0; x < MAP_WIDTH; x += 20) {
     sprite_pac_dot(x, 100);
   }
 
 //draw dots in y position
-    for (int y = 0; y < 240; x += 10) {
+    for (int y = 0; y < MAP_HEIGHT; x += 10) {
     sprite_pac_dot(100, y);
   }
 
