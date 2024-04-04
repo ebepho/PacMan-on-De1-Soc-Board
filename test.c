@@ -1015,6 +1015,8 @@ struct Player {
 
   int sprite_num;
   int sprite_num_prev;
+
+  int lives;
 };
 
 // Ghost
@@ -1068,6 +1070,7 @@ struct Timer {
 
 int game_countdown;
 bool game_over;
+bool round;
 
 // Game Entities
 struct Player player1;
@@ -1119,30 +1122,44 @@ void draw_ghosts();
 int main(void) {
   volatile int *pixel_ctrl_ptr = (int *)0xFF203020;
   draw_setup();
-  game_setup();
-  map_draw(map);
-  // map_draw(ghost_path); 
-  
-  wait_for_vsync();
-  pixel_buffer_start = *(pixel_ctrl_ptr + 1);  // new back buffer
-  
-  map_draw(map); 
-  // map_draw(ghost_path); 
 
-  wait_for_vsync();
-  pixel_buffer_start = *(pixel_ctrl_ptr + 1);  // new back buffer
+  round = true;
+  game_over = true;
 
-  while (1) {
-    // For every 2 moves the player makes, the ghosts will move once
-    PS2_ISR();
-    move_player();
-    check_ghosts();
-    // check_pacdots();
-    move_ghosts();
-
-    waitasec(4);   
-    wait_for_vsync();  // swap front and back buffers on VGA vertical sync
+  while (game_over) {
+    game_setup();
+    map_draw(map);
+    // map_draw(ghost_path); 
+    
+    wait_for_vsync();
     pixel_buffer_start = *(pixel_ctrl_ptr + 1);  // new back buffer
+    
+    map_draw(map); 
+    // map_draw(ghost_path); 
+
+    wait_for_vsync();
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1);  // new back buffer
+
+    while(round){
+        // For every 2 moves the player makes, the ghosts will move once
+        PS2_ISR();
+        move_player();
+
+        check_ghosts();
+        // check_pacdots();
+        move_ghosts();
+
+        waitasec(4);   
+        wait_for_vsync();  // swap front and back buffers on VGA vertical sync
+        pixel_buffer_start = *(pixel_ctrl_ptr + 1);  // new back buffer
+    }
+
+    if(player1.lives > 0){
+        round = true;
+    }
+    else {
+        game_over = true;
+    }
   }
 }
 
@@ -1158,6 +1175,7 @@ void game_setup() {
   player1.sprite[2] = pac_000;
 
   player1.width = 16;
+  player1.lives = 3;
 
   for (int i = 0; i < 4; i++) {
     ghosts[i].x = 203;  // Example starting position
@@ -1185,6 +1203,39 @@ void game_setup() {
         ghosts[i].jail = true;
     }
     
+}
+
+bool check_ghosts_hit() {
+  // Check if player has eaten a ghost
+  for (int i = 0; i < 4; i++) {
+    if(ghosts[i].jail){
+        continue;
+    }
+
+    if (((ghosts[i].x <= player1.x + player1.width) || (ghosts[i].x + ghosts[i].width >= player1.x))
+    &&  ((ghosts[i].y <= player1.y + player1.width) || (ghosts[i].y + ghosts[i].width >= player1.y))) { 
+
+        if (ghosts[i].edible) {
+            ghosts[i].x = 203;
+            ghosts[i].y = 81;
+        } else {
+            // Player is eaten - CHANGE TO LIVES LATER
+            player1.lives--;
+            return true;
+
+        }
+    }
+  }
+
+  return false;
+}
+
+void check_pacdots() {
+  // Check if player has eaten a pac-dot
+  if (map[player1.x + player1.y] == 1) {
+    map[player1.x + player1.y * MAP_WIDTH] = 0;
+    // Increase score
+  }
 }
 
 void move_player() {
@@ -1316,32 +1367,7 @@ void draw_player() {
     }
 }
 
-void check_ghosts() {
-  // Check if player has eaten a ghost
-  for (int i = 0; i < 4; i++) {
-    if(ghosts[i].jail){
-        continue;
-    }
-    if (ghosts[i].x <= player1.x + ghosts[i].width && ghosts[i].x + ghosts[i].width >= player1.x &&
-        ghosts[i].y <= player1.y + player1.width && ghosts[i].y + ghosts[i].width >= player1.y) {
-      if (ghosts[i].edible) {
-        ghosts[i].x = 203;
-        ghosts[i].y = 81;
-      } else {
-        // Player is eaten - CHANGE TO LIVES LATER
-        game_over = true;
-      }
-    }
-  }
-}
 
-void check_pacdots() {
-  // Check if player has eaten a pac-dot
-  if (map[player1.x + player1.y] == 1) {
-    map[player1.x + player1.y * MAP_WIDTH] = 0;
-    // Increase score
-  }
-}
 
 void move_ghosts() {
     erase_ghosts();
