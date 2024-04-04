@@ -1256,7 +1256,6 @@ void dot_position();
 int main(void) {
   volatile int *pixel_ctrl_ptr = (int *)0xFF203020;
   draw_setup();
-dot_position();
 
   game_round = true;
   game_over = true;
@@ -1264,6 +1263,7 @@ dot_position();
   while (game_over) {
     game_setup();
     map_draw(map);
+ 	dot_position();
     // map_draw(ghost_path); 
     
     wait_for_vsync();
@@ -1271,7 +1271,7 @@ dot_position();
     
     map_draw(map); 
     // map_draw(ghost_path); 
-
+ 	dot_position();
     wait_for_vsync();
     pixel_buffer_start = *(pixel_ctrl_ptr + 1);  // new back buffer
 
