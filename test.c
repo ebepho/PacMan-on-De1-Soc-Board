@@ -1199,6 +1199,16 @@ struct Timer {
 #define MAP_WIDTH 320
 #define MAP_HEIGHT 240
 
+#define REGULAR_PATH_1 0xf881
+#define REGULAR_PATH_2 0xf861
+#define DECISION_POINT 0x4fc1
+#define CURVE_POINT 0xfec1
+#define STARTING_POINT 0x005c
+#define EDGE_POINT 0x0061
+#define INVALID_POINT 0xffff
+#define BLACK 0x0000
+
+
 int game_countdown;
 bool game_over;
 bool game_round;
@@ -1247,6 +1257,7 @@ void check_pacdots();
 void move_ghosts();
 void erase_ghosts();
 void ghost_ai();
+void chose_a_move(int num_available_moves, int available_moves[num_available_moves][2], int i);
 void update_ghosts();
 void draw_ghosts();
 void draw_dot(int x, int y);
@@ -1285,7 +1296,7 @@ int main(void) {
         // check_pacdots();
         move_ghosts();
 
-        waitasec(4);   
+        waitasec(8);   
         wait_for_vsync();  // swap front and back buffers on VGA vertical sync
         pixel_buffer_start = *(pixel_ctrl_ptr + 1);  // new back buffer
     }
@@ -1422,33 +1433,33 @@ void valid_move() {
 
 
     // If we're on a red dot, move as long as the next posiiton isn't white
-    if ((ghost_path[player1.x + player1.y * MAP_WIDTH] == 0xf881 || 
-        ghost_path[player1.x + player1.y * MAP_WIDTH] == 0xf861) && 
-        ghost_path[player1.x + temp_dx  + (player1.y + temp_dy) * MAP_WIDTH] != 0xffff) {
+    if ((ghost_path[player1.x + player1.y * MAP_WIDTH] == REGULAR_PATH_1 || 
+        ghost_path[player1.x + player1.y * MAP_WIDTH] == REGULAR_PATH_2) && 
+        ghost_path[player1.x + temp_dx  + (player1.y + temp_dy) * MAP_WIDTH] != INVALID_POINT) {
         player1.dx = temp_dx;
         player1.dy = temp_dy;
 
 
     } 
     // If we're on  the starting green, the player should only be able to move in the left/right direction
-    else if (ghost_path[player1.x + player1.y * MAP_WIDTH] == 0x005c){
+    else if (ghost_path[player1.x + player1.y * MAP_WIDTH] == STARTING_POINT){
         if(temp_dx != 0){
             player1.dx = temp_dx;
         }
     } 
   
     // If we're at a corner or a decision making position
-    else if((ghost_path[player1.x + player1.y * MAP_WIDTH] == 0x4fc1 || 
-             ghost_path[player1.x + player1.y * MAP_WIDTH] == 0xfec1)) {
+    else if((ghost_path[player1.x + player1.y * MAP_WIDTH] == DECISION_POINT || 
+             ghost_path[player1.x + player1.y * MAP_WIDTH] == CURVE_POINT)) {
 
         // Check if we can move with the new dx dy
-        if (ghost_path[player1.x + temp_dx  + (player1.y + temp_dy) * MAP_WIDTH] != 0xffff){
+        if (ghost_path[player1.x + temp_dx  + (player1.y + temp_dy) * MAP_WIDTH] != INVALID_POINT){
             player1.dx = temp_dx;
             player1.dy = temp_dy;
         } 
 
         // Check if we can keep moving with the original dx dy
-        else if(ghost_path[player1.x + player1.dx   + (player1.y + player1.dy ) * MAP_WIDTH] != 0xffff){
+        else if(ghost_path[player1.x + player1.dx   + (player1.y + player1.dy ) * MAP_WIDTH] != INVALID_POINT){
             player1.dx = player1.dx;
             player1.dy = player1.dy;
         }
@@ -1500,6 +1511,13 @@ void update_player() {
 
   player1.x += player1.dx;
   player1.y += player1.dy;
+
+  if(player1.x  == 98){
+        player1.x = MAP_WIDTH - 1;
+    }
+    else if (player1.x == MAP_WIDTH){
+        player1.x = 99;
+    }
 }
 
 void draw_player() {
@@ -1535,10 +1553,10 @@ void erase_ghosts() {
       for (syi = 0; syi < ghosts[i].width; syi++) {
         xi = ghosts[i].x_prev + sxi;
         yi = ghosts[i].y_prev + syi;
-        plot_pixel(xi, yi, 0x0000);
+        plot_pixel(xi, yi, BLACK);
 
-        if(ghosts[i].sprite[ghosts[i].sprite_num_prev][syi * ghosts[i].width + sxi] != 0x0000){
-            plot_pixel(xi, yi, 0x0000);
+        if(ghosts[i].sprite[ghosts[i].sprite_num_prev][syi * ghosts[i].width + sxi] != BLACK){
+            plot_pixel(xi, yi, BLACK);
         }
       }
     }
@@ -1558,28 +1576,34 @@ void ghost_ai() {
         int num_available_moves = 0;
         int available_moves[4][2];
 
-        // Regular path - keep moving in the same direction
-        if(ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == 0xf861 || ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == 0xf881) {
-            continue;
-        }
 
-        if(ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == 0x005c){
-            if(ghosts[i].dx != -1){
-                available_moves[num_available_moves][0] = 1;
-                available_moves[num_available_moves][1] = 0;
-                num_available_moves++;
+        if(distance > 80){
+            // Regular point - keep moving normaly
+            if(ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == REGULAR_PATH_1 || ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == REGULAR_PATH_2) {
+                continue;
             }
 
-            if(ghosts[i].dx != 1){
-                available_moves[num_available_moves][0] = -1;
-                available_moves[num_available_moves][1] = 0;
-                num_available_moves++;
-            }
-        } 
-        else {
+            // Starting point - If we happen to hit the starting point
+            if(ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == STARTING_POINT){
+                if(ghosts[i].dx != -1){
+                    available_moves[num_available_moves][0] = 1;
+                    available_moves[num_available_moves][1] = 0;
+                    num_available_moves++;
+                }
+
+                if(ghosts[i].dx != 1){
+                    available_moves[num_available_moves][0] = -1;
+                    available_moves[num_available_moves][1] = 0;
+                    num_available_moves++;
+                }
+
+                chose_a_move(num_available_moves, available_moves, i);
+                continue;
+            } 
+
 
             // At Edges - can either go left or right, decide
-            if(ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == 0x0061){
+            if(ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == EDGE_POINT){
                 available_moves[num_available_moves][0] = 1;
                 available_moves[num_available_moves][1] = 0;
 
@@ -1587,68 +1611,96 @@ void ghost_ai() {
                 available_moves[num_available_moves][0] = -1;
                 available_moves[num_available_moves][1] = 0;
                 num_available_moves ++;
+
+                chose_a_move(num_available_moves, available_moves, i);
+                continue;
             } 
 
-            else {
+            // At a turn point - keep moving in the same direction with respect to the turn
+            if (ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == CURVE_POINT) {
+                if(ghosts[i].dx  != 0) {
+                    available_moves[0][0] = 0;
 
-                // Turn point - finish path if we're far away
-                if (distance > 80 && ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == 0xfec1) {
-                    if(ghosts[i].dx  != 0) {
-                        available_moves[0][0] = 0;
-
-                        if(ghost_path[ghosts[i].x + (ghosts[i].y + 1) * MAP_WIDTH] != 0xffff) {
-                            available_moves[0][1] = 1;
-                        }
-                        else {
-                            available_moves[0][1] = -1;
-                        }
-
-                        num_available_moves = 1;
+                    if(ghost_path[ghosts[i].x + (ghosts[i].y + 1) * MAP_WIDTH] != 0xffff) {
+                        available_moves[0][1] = 1;
                     }
                     else {
-                        available_moves[0][1] = 0;
-
-                        if(ghost_path[ghosts[i].x + 1 + ghosts[i].y * MAP_WIDTH] != 0xffff) {
-                            available_moves[0][0] = 1;
-                        }
-                        else {
-                            available_moves[0][0] = -1;
-                        }
-
-                        num_available_moves = 1;
+                        available_moves[0][1] = -1;
                     }
-                }
 
-                // Thses are for if we're close enough to the player, move in the avaible direction
+                    num_available_moves = 1;
+                }
                 else {
-                    if(ghost_path[ghosts[i].x + 1 + ghosts[i].y * MAP_WIDTH] != 0xffff && ghosts[i].dx != -1) {
-                        available_moves[num_available_moves][0] = 1;
-                        available_moves[num_available_moves][1] = 0;
-                        num_available_moves++;
+                    available_moves[0][1] = 0;
+
+                    if(ghost_path[ghosts[i].x + 1 + ghosts[i].y * MAP_WIDTH] != 0xffff) {
+                        available_moves[0][0] = 1;
+                    }
+                    else {
+                        available_moves[0][0] = -1;
                     }
 
-                    if(ghost_path[ghosts[i].x - 1 + ghosts[i].y * MAP_WIDTH] != 0xffff && ghosts[i].dx != 1) {
-                        available_moves[num_available_moves][0] = -1;
-                        available_moves[num_available_moves][1] = 0;
-                        num_available_moves++;
-                    }
-                    
-                    if(ghost_path[ghosts[i].x + (ghosts[i].y + 1) * MAP_WIDTH] != 0xffff && ghosts[i].dy != -1) {
-                        available_moves[num_available_moves][0] = 0;
-                        available_moves[num_available_moves][1] = 1;
-                        num_available_moves++;
-                    }
-
-                    if(ghost_path[ghosts[i].x + (ghosts[i].y - 1) * MAP_WIDTH] != 0xffff && ghosts[i].dy != 1) {
-                        available_moves[num_available_moves][0] = 0;
-                        available_moves[num_available_moves][1] = -1;
-                        num_available_moves++;
-                    }
+                    num_available_moves = 1;
                 }
+                chose_a_move(num_available_moves, available_moves, i);
+                continue;
+            }
+
+            if (ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == DECISION_POINT) {
+                if(ghost_path[ghosts[i].x + 1 + ghosts[i].y * MAP_WIDTH] != 0xffff && ghosts[i].dx != -1) {
+                    available_moves[num_available_moves][0] = 1;
+                    available_moves[num_available_moves][1] = 0;
+                    num_available_moves++;
+                }
+
+                if(ghost_path[ghosts[i].x - 1 + ghosts[i].y * MAP_WIDTH] != 0xffff && ghosts[i].dx != 1) {
+                    available_moves[num_available_moves][0] = -1;
+                    available_moves[num_available_moves][1] = 0;
+                    num_available_moves++;
+                }
+                
+                if(ghost_path[ghosts[i].x + (ghosts[i].y + 1) * MAP_WIDTH] != 0xffff && ghosts[i].dy != -1) {
+                    available_moves[num_available_moves][0] = 0;
+                    available_moves[num_available_moves][1] = 1;
+                    num_available_moves++;
+                }
+
+                if(ghost_path[ghosts[i].x + (ghosts[i].y - 1) * MAP_WIDTH] != 0xffff && ghosts[i].dy != 1) {
+                    available_moves[num_available_moves][0] = 0;
+                    available_moves[num_available_moves][1] = -1;
+                    num_available_moves++;
+                }
+                chose_a_move(num_available_moves, available_moves, i);
+                continue;
             }
         }
 
-        if (distance <= 80) {
+
+        else if (distance <= 80) {
+            if(ghost_path[ghosts[i].x + 1 + ghosts[i].y * MAP_WIDTH] != 0xffff && ghosts[i].dx != -1) {
+                available_moves[num_available_moves][0] = 1;
+                available_moves[num_available_moves][1] = 0;
+                num_available_moves++;
+            }
+
+            if(ghost_path[ghosts[i].x - 1 + ghosts[i].y * MAP_WIDTH] != 0xffff && ghosts[i].dx != 1) {
+                available_moves[num_available_moves][0] = -1;
+                available_moves[num_available_moves][1] = 0;
+                num_available_moves++;
+            }
+            
+            if(ghost_path[ghosts[i].x + (ghosts[i].y + 1) * MAP_WIDTH] != 0xffff && ghosts[i].dy != -1) {
+                available_moves[num_available_moves][0] = 0;
+                available_moves[num_available_moves][1] = 1;
+                num_available_moves++;
+            }
+
+            if(ghost_path[ghosts[i].x + (ghosts[i].y - 1) * MAP_WIDTH] != 0xffff && ghosts[i].dy != 1) {
+                available_moves[num_available_moves][0] = 0;
+                available_moves[num_available_moves][1] = -1;
+                num_available_moves++;
+            }
+
             if (ghosts[i].edible) {
                 // Find the farthest available move from the player
                 int farthest_move_index = -1;
@@ -1678,7 +1730,9 @@ void ghost_ai() {
                     ghosts[i].dy = move_y;
                 }
                 
-            } else {
+            } 
+            
+            else {
                 // Find the closest available move to the player
                 int closest_move_index = -1;
                 int closest_move_distance = 99999;
@@ -1708,18 +1762,18 @@ void ghost_ai() {
                 }
             }
         }
+    }
+}
 
-        else {
-            // Change dx and dy randomly to one of the available moves
-            if (num_available_moves > 0) {
-                int random_move_index = rand() % num_available_moves;
-                int move_x = available_moves[random_move_index][0];
-                int move_y = available_moves[random_move_index][1];
+void chose_a_move(int num_available_moves, int available_moves[num_available_moves][2], int i){
+    // Change dx and dy randomly to one of the available moves
+    if (num_available_moves > 0) {
+        int random_move_index = rand() % num_available_moves;
+        int move_x = available_moves[random_move_index][0];
+        int move_y = available_moves[random_move_index][1];
 
-                ghosts[i].dx = move_x;
-                ghosts[i].dy = move_y;
-            }
-        }
+        ghosts[i].dx = move_x;
+        ghosts[i].dy = move_y;
     }
 }
 
@@ -1761,10 +1815,10 @@ void update_ghosts() {
     ghosts[i].y += ghosts[i].dy;
 
     if(ghosts[i].x == 98){
-        ghosts[i].x = MAP_WIDTH;
+        ghosts[i].x = MAP_WIDTH - 1;
     }
     else if (ghosts[i].x == MAP_WIDTH){
-        ghosts[i].x = 90;
+        ghosts[i].x = 99;
     }
   }
 }
