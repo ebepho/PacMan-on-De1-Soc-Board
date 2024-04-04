@@ -1070,7 +1070,7 @@ struct Timer {
 
 int game_countdown;
 bool game_over;
-bool round;
+bool game_round;
 
 // Game Entities
 struct Player player1;
@@ -1110,7 +1110,7 @@ void erase_player();
 void update_player();
 void draw_player();
 
-void check_ghosts();
+void check_ghosts_hit();
 void check_pacdots();
 
 void move_ghosts();
@@ -1123,7 +1123,7 @@ int main(void) {
   volatile int *pixel_ctrl_ptr = (int *)0xFF203020;
   draw_setup();
 
-  round = true;
+  game_round = true;
   game_over = true;
 
   while (game_over) {
@@ -1140,12 +1140,13 @@ int main(void) {
     wait_for_vsync();
     pixel_buffer_start = *(pixel_ctrl_ptr + 1);  // new back buffer
 
-    while(round){
+    while(game_round){
         // For every 2 moves the player makes, the ghosts will move once
         PS2_ISR();
         move_player();
 
-        check_ghosts();
+        check_ghosts_hit();
+
         // check_pacdots();
         move_ghosts();
 
@@ -1155,7 +1156,7 @@ int main(void) {
     }
 
     if(player1.lives > 0){
-        round = true;
+        game_round = true;
     }
     else {
         game_over = true;
@@ -1164,31 +1165,35 @@ int main(void) {
 }
 
 void game_setup() {
-  player1.x = 203;
-  player1.y = 176;
+    player1.x = 203;
+    player1.y = 176;
 
-  player1.x_prev = player1.x;
-  player1.y_prev = player1.y;
+    player1.dx = 0;
+    player1.dy = 0;
 
-  player1.sprite[0] = pac_000;
-  player1.sprite[1] = pac_000;
-  player1.sprite[2] = pac_000;
 
-  player1.width = 16;
-  player1.lives = 3;
+    player1.x_prev = player1.x;
+    player1.y_prev = player1.y;
 
-  for (int i = 0; i < 4; i++) {
-    ghosts[i].x = 203;  // Example starting position
-    ghosts[i].y = 103;
-    ghosts[i].x_prev = ghosts[i].x;
-    ghosts[i].y_prev = ghosts[i].y;
-    ghosts[i].dx = 0;
-    ghosts[i].dy = 0;
-    ghosts[i].edible = false;
-    ghosts[i].jail = false;
-    ghosts[i].timer = i * 4 * 100000000;
-    ghosts[i].width = 14;
-  }
+    player1.sprite[0] = pac_000;
+    player1.sprite[1] = pac_000;
+    player1.sprite[2] = pac_000;
+
+    player1.width = 16;
+    player1.lives = 3;
+
+    for (int i = 0; i < 4; i++) {
+        ghosts[i].x = 203;  // Example starting position
+        ghosts[i].y = 103;
+        ghosts[i].x_prev = ghosts[i].x;
+        ghosts[i].y_prev = ghosts[i].y;
+        ghosts[i].dx = 0;
+        ghosts[i].dy = 0;
+        ghosts[i].edible = false;
+        ghosts[i].jail = false;
+        ghosts[i].timer = i * 4 * 100000000;
+        ghosts[i].width = 14;
+    }
 	
 	ghosts[0].x = 203;  // Example starting position
     ghosts[0].y = 101;	
@@ -1205,29 +1210,31 @@ void game_setup() {
     
 }
 
-bool check_ghosts_hit() {
-  // Check if player has eaten a ghost
-  for (int i = 0; i < 4; i++) {
-    if(ghosts[i].jail){
-        continue;
-    }
+void check_ghosts_hit() {
+    // Check if player has eaten a ghost
+    for (int i = 0; i < 4; i++) {
+        if(ghosts[i].jail){
+            continue;
+        }
 
-    if (((ghosts[i].x <= player1.x + player1.width) || (ghosts[i].x + ghosts[i].width >= player1.x))
-    &&  ((ghosts[i].y <= player1.y + player1.width) || (ghosts[i].y + ghosts[i].width >= player1.y))) { 
+        // Check for overlap on X-axis
+        bool overlapX = (player1.x < ghosts[i].x + ghosts[i].width) && (ghosts[i].x < player1.x + player1.width);
+        
+        // Check for overlap on Y-axis
+        bool overlapY = (player1.y < ghosts[i].y + ghosts[i].width) && (ghosts[i].y < player1.y + player1.width);
 
-        if (ghosts[i].edible) {
-            ghosts[i].x = 203;
-            ghosts[i].y = 81;
-        } else {
-            // Player is eaten - CHANGE TO LIVES LATER
-            player1.lives--;
-            return true;
+        if (overlapX && overlapY) { 
 
+            if (ghosts[i].edible) {
+                ghosts[i].x = 203;
+                ghosts[i].y = 81;
+            } else {
+                // Player is eaten - CHANGE TO LIVES LATER
+                player1.lives--;
+                game_round = false;
+            }
         }
     }
-  }
-
-  return false;
 }
 
 void check_pacdots() {
@@ -1252,6 +1259,7 @@ void map_draw(unsigned short maze[]) {
       plot_pixel(xi, yi, maze[yi * MAP_WIDTH + xi]);
     }
 }
+
 
 void valid_move() {
   int temp_dx = player1.dx, temp_dy = player1.dy;
@@ -1311,9 +1319,8 @@ void valid_move() {
         else {
             player1.dx = 0;
             player1.dy = 0;
-        }
-        
-  }
+        }    
+    }
 }
 
 void erase_player() {
@@ -1358,10 +1365,10 @@ void update_player() {
 }
 
 void draw_player() {
-  // DRAW (at new position)
-  sprite_draw(player1.sprite[player1.sprite_num], player1.x, player1.y, player1.width);
+    // DRAW (at new position)
+    sprite_draw(player1.sprite[player1.sprite_num], player1.x, player1.y, player1.width);
 
-    if(player1.dx != 0 || player1.dy != 0){
+    if(player1.dx != 0 || player1.dy != 0) {
         player1.sprite_num_prev = player1.sprite_num;
         player1.sprite_num = (player1.sprite_num + 1) % 3;
     }
@@ -1380,6 +1387,7 @@ void erase_ghosts() {
   // ERASE (at old position)
   int sxi, syi;
   int xi, yi;
+
   for (int i = 0; i < 4; i++) {
     if (ghosts[i].jail) {
       continue;
