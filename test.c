@@ -1142,17 +1142,15 @@ int main(void) {
     // check_pacdots();
     move_ghosts();
 
-    waitasec(4);
-
-    
+    waitasec(4);   
     wait_for_vsync();  // swap front and back buffers on VGA vertical sync
     pixel_buffer_start = *(pixel_ctrl_ptr + 1);  // new back buffer
   }
 }
 
 void game_setup() {
-  player1.x = 160;
-  player1.y = 180;
+  player1.x = 203;
+  player1.y = 176;
 
   player1.x_prev = player1.x;
   player1.y_prev = player1.y;
@@ -1209,38 +1207,26 @@ void map_draw(unsigned short maze[]) {
 
 bool valid_move() {
   int temp_dx = player1.dx, temp_dy = player1.dy;
-
   // move player
   if (byte3 == 0b1110010) {
     temp_dx = 0;
     temp_dy = 1;
-    player1.sprite[0] = pac_000;
-    player1.sprite[1] = pac_HOD;
-    player1.sprite[2] = pac_OD;
+
   } else if (byte3 == 0b1110101) {
     temp_dx = 0;
     temp_dy = -1;
-    player1.sprite[0] = pac_000;
-    player1.sprite[1] = pac_HOU;
-    player1.sprite[2] = pac_OU;
+
   } else if (byte3 == 0b1110100) {
     temp_dx = 1;
     temp_dy = 0;
-    player1.sprite[0] = pac_000;
-    player1.sprite[1] = pac_001;
-    player1.sprite[2] = pac_002;
+
   } else if (byte3 == 0b1101011) {
     temp_dx = -1;
     temp_dy = 0;
-    player1.sprite[0] = pac_000;
-    player1.sprite[1] = pac_003;
-    player1.sprite[2] = pac_004;
   }
-
+    
   // check if new position is at a pac-dot
-  if (/*(player1.x + temp_dx < 240) && (player1.x + temp_dx > 0)  && (player1.y
-         + temp_dy < 120) && (player1.y + temp_dy > 0)*/
-      1) {
+  if (ghost_path[player1.x + temp_dx + (player1.y + temp_dy) * 320] == 0xf881 || ghost_path[player1.x + temp_dx + (player1.y + temp_dy) * 320] == 0xf861) {
     player1.dx = temp_dx;
     player1.dy = temp_dy;
     return true;
@@ -1264,6 +1250,25 @@ void erase_player() {
 }
 
 void update_player() {
+    // move player
+  if (player1.dy == 1) {
+    player1.sprite[0] = pac_000;
+    player1.sprite[1] = pac_HOD;
+    player1.sprite[2] = pac_OD;
+  } else if (player1.dy == -1) {
+    player1.sprite[0] = pac_000;
+    player1.sprite[1] = pac_HOU;
+    player1.sprite[2] = pac_OU;
+  } else if (player1.dx == 1) {
+    player1.sprite[0] = pac_000;
+    player1.sprite[1] = pac_001;
+    player1.sprite[2] = pac_002;
+  } else if (player1.dx == -1) {
+    player1.sprite[0] = pac_000;
+    player1.sprite[1] = pac_003;
+    player1.sprite[2] = pac_004;
+  }
+
   player1.x_prev = player1.x;
   player1.y_prev = player1.y;
 
@@ -1569,7 +1574,9 @@ void sprite_draw(unsigned short sprite[], int x, int y, int width) {
     for (syi = 0; syi < width; syi++) {
       xi = x + sxi;
       yi = y + syi;
-      plot_pixel(xi, yi, sprite[syi * width + sxi]);
+      if(sprite[syi * width + sxi] != 0x0000){
+        plot_pixel(xi, yi, sprite[syi * width + sxi]);
+      }
     }
   }
 }
@@ -1698,6 +1705,9 @@ void PS2_ISR(void) {
 }
 
 
+
+
+/*
 void dot_position() {
   int s = 0;
 
@@ -1712,7 +1722,6 @@ void dot_position() {
   }
 
 }
-
 
 void draw_dot(int x, int y) {
   for (int sxi = 0; sxi < 16; sxi++){
@@ -1733,6 +1742,7 @@ void erase_dot(int dotX, int dotY){
         }
     }
 }
+*/
 
 /*
 //have some array to hold the position of the dots
@@ -1743,6 +1753,8 @@ void check_dot(int x, int y){
     }
 }
 */
+
+/*
 unsigned short *dif_scor[10] = {zero, one, two, three, four, five, six, seven, eight, nine};
 
 void change_score(int tempScor){
@@ -1755,6 +1767,7 @@ void change_score(int tempScor){
     }
 
 }
+*/
 
 void draw_score(int x, int y,unsigned short dif_scor[]){
   for (int sxi = 0; sxi < 9; sxi++){
