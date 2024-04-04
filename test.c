@@ -1102,7 +1102,7 @@ void game_setup();
 void map_draw(unsigned short maze[]);
 
 void move_player();
-bool valid_move();
+void valid_move(); 
 void erase_player();
 void update_player();
 void draw_player();
@@ -1136,7 +1136,7 @@ int main(void) {
     // For every 2 moves the player makes, the ghosts will move once
     PS2_ISR();
     move_player();
-    // check_ghosts();
+    check_ghosts();
     // check_pacdots();
     move_ghosts();
 
@@ -1188,11 +1188,10 @@ void game_setup() {
 }
 
 void move_player() {
-  if (valid_move()) {
+    valid_move();
     erase_player();
     update_player();
     draw_player();
-  }
 }
 
 void map_draw(unsigned short maze[]) {
@@ -1203,8 +1202,9 @@ void map_draw(unsigned short maze[]) {
     }
 }
 
-bool valid_move() {
+void valid_move() {
   int temp_dx = player1.dx, temp_dy = player1.dy;
+
   // move player
   if (byte3 == 0b1110010) {
     temp_dx = 0;
@@ -1222,15 +1222,47 @@ bool valid_move() {
     temp_dx = -1;
     temp_dy = 0;
   }
-    
-  // check if new position is at a pac-dot
-  if (ghost_path[player1.x + temp_dx + (player1.y + temp_dy) * MAP_WIDTH] != 0xffff) {
-    player1.dx = temp_dx;
-    player1.dy = temp_dy;
-    return true;
-  }
 
-  return false;
+
+    // If we're on a red dot, move as long as the next posiiton isn't white
+    if ((ghost_path[player1.x + player1.y * MAP_WIDTH] == 0xf881 || 
+        ghost_path[player1.x + player1.y * MAP_WIDTH] == 0xf861) && 
+        ghost_path[player1.x + temp_dx  + (player1.y + temp_dy) * MAP_WIDTH] != 0xffff) {
+        player1.dx = temp_dx;
+        player1.dy = temp_dy;
+
+
+    } 
+    // If we're on  the starting green, the player should only be able to move in the left/right direction
+    else if (ghost_path[player1.x + player1.y * MAP_WIDTH] == 0x005c){
+        if(temp_dx != 0){
+            player1.dx = temp_dx;
+        }
+    } 
+  
+    // If we're at a corner or a decision making position
+    else if((ghost_path[player1.x + player1.y * MAP_WIDTH] == 0x4fc1 || 
+             ghost_path[player1.x + player1.y * MAP_WIDTH] == 0xfec1)) {
+
+        // Check if we can move with the new dx dy
+        if (ghost_path[player1.x + temp_dx  + (player1.y + temp_dy) * MAP_WIDTH] != 0xffff){
+            player1.dx = temp_dx;
+            player1.dy = temp_dy;
+        } 
+
+        // Check if we can keep moving with the original dx dy
+        else if(ghost_path[player1.x + player1.dx   + (player1.y + player1.dy ) * MAP_WIDTH] != 0xffff){
+            player1.dx = player1.dx;
+            player1.dy = player1.dy;
+        }
+
+        // Else stop moving
+        else {
+            player1.dx = 0;
+            player1.dy = 0;
+        }
+        
+  }
 }
 
 void erase_player() {
@@ -1277,12 +1309,19 @@ void update_player() {
 void draw_player() {
   // DRAW (at new position)
   sprite_draw(player1.sprite[player1.sprite_num], player1.x, player1.y, player1.width);
-  player1.sprite_num = (player1.sprite_num + 1) % 3;
+
+    if(player1.dx != 0 || player1.dy != 0){
+        player1.sprite_num_prev = player1.sprite_num;
+        player1.sprite_num = (player1.sprite_num + 1) % 3;
+    }
 }
 
 void check_ghosts() {
   // Check if player has eaten a ghost
   for (int i = 0; i < 4; i++) {
+    if(ghosts[i].jail){
+        continue;
+    }
     if (ghosts[i].x <= player1.x + ghosts[i].width && ghosts[i].x + ghosts[i].width >= player1.x &&
         ghosts[i].y <= player1.y + player1.width && ghosts[i].y + ghosts[i].width >= player1.y) {
       if (ghosts[i].edible) {
@@ -1379,6 +1418,7 @@ void ghost_ai() {
             } 
 
             else {
+
                 // Turn point - finish path if we're far away
                 if (distance > 80 && ghost_path[ghosts[i].x + ghosts[i].y * MAP_WIDTH] == 0xfec1) {
                     if(ghosts[i].dx  != 0) {
