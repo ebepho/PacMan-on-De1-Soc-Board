@@ -490,6 +490,8 @@ unsigned short ghost_path[]  = {
 }; 
 
 
+unsigned short pac_dot_positions[] = {};
+
 unsigned short pac_000[] = {
     0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x0b0b00, 0x131300,
     0x131300, 0x131300, 0x131300, 0x080800, 0x000000, 0x000000, 0x000000,
@@ -1630,10 +1632,15 @@ struct Timer {
   int y_prev;
 };
 
+struct PacDot {
+    int width; 
+    unsigned short *pac_dot_positions;
+    unsigned short *sprite;
+};
+
 // -------------------------- GLOBALS.H --------------------------
 #define MAP_WIDTH 320
 #define MAP_HEIGHT 240
-
 #define REGULAR_PATH 0xf861
 #define DECISION_POINT 0x4fc1
 #define CURVE_POINT 0xfec1
@@ -1651,6 +1658,7 @@ bool game_round;
 // Game Entities
 struct Player player1;
 struct Ghost ghosts[4];
+struct PacDot pacdot;
 
 // -------------------------- GRAPHICS.H --------------------------
 volatile int pixel_buffer_start;  // global variable
@@ -1687,6 +1695,7 @@ void erase_player();
 void update_player();
 void draw_player();
 
+void draw_pac_dots();
 void check_ghosts_hit();
 void check_pacdots();
 
@@ -1756,19 +1765,21 @@ int main(void) {
     }
 }
 
+
+
 void map_draw(unsigned short maze[]) {
   int xi, yi;
-  for (xi = 0; xi < MAP_WIDTH; xi++)
-    for (yi = 0; yi < MAP_HEIGHT; yi++) {
-	if(maze[yi * MAP_WIDTH +xi] != 0x0000){
-		// maze[yi * MAP_WIDTH +xi] = 0xf80f;
-	  }
-      plot_pixel(xi, yi, maze[yi * MAP_WIDTH + xi]);
+    for (xi = 0; xi < MAP_WIDTH; xi++){
+        for (yi = 0; yi < MAP_HEIGHT; yi++) {
+            plot_pixel(xi, yi, maze[yi * MAP_WIDTH + xi]);
+        }
     }
 }
 
 
 void game_setup() {
+    pacdot.pac_dot_positions = pac_dot_positions;
+
     player1.x = 203;
     player1.y = 176;
 
@@ -1872,40 +1883,7 @@ void setup_ghosts_sprites(){
     ghosts[3].regular_sprite_down[1] = ghost4_D2;
 }
 
-void check_ghosts_hit() {
-    // Check if player has eaten a ghost
-    for (int i = 0; i < 4; i++) {
-        if(ghosts[i].jail){
-            continue;
-        }
 
-        // Check for overlap on X-axis
-        bool overlapX = (player1.x < ghosts[i].x + ghosts[i].width) && (ghosts[i].x < player1.x + player1.width);
-        
-        // Check for overlap on Y-axis
-        bool overlapY = (player1.y < ghosts[i].y + ghosts[i].width) && (ghosts[i].y < player1.y + player1.width);
-
-        if (overlapX && overlapY) { 
-
-            if (ghosts[i].edible) {
-                ghosts[i].x = 204;
-                ghosts[i].y = 81;
-            } else {
-                // Player is eaten - CHANGE TO LIVES LATER
-                player1.lives--;
-                game_round = false;
-            }
-        }
-    }
-}
-
-void check_pacdots() {
-  // Check if player has eaten a pac-dot
-  if (map[player1.x + player1.y] == 1) {
-    map[player1.x + player1.y * MAP_WIDTH] = 0;
-    // Increase score
-  }
-}
 
 void move_player() {
     valid_move();
@@ -2050,6 +2028,34 @@ void move_ghosts() {
     update_ghosts();
     draw_ghosts();
 }
+
+void check_ghosts_hit() {
+    // Check if player has eaten a ghost
+    for (int i = 0; i < 4; i++) {
+        if(ghosts[i].jail){
+            continue;
+        }
+
+        // Check for overlap on X-axis
+        bool overlapX = (player1.x < ghosts[i].x + ghosts[i].width) && (ghosts[i].x < player1.x + player1.width);
+        
+        // Check for overlap on Y-axis
+        bool overlapY = (player1.y < ghosts[i].y + ghosts[i].width) && (ghosts[i].y < player1.y + player1.width);
+
+        if (overlapX && overlapY) { 
+
+            if (ghosts[i].edible) {
+                ghosts[i].x = 204;
+                ghosts[i].y = 81;
+            } else {
+                // Player is eaten - CHANGE TO LIVES LATER
+                player1.lives--;
+                game_round = false;
+            }
+        }
+    }
+}
+
 
 void erase_ghosts() {
   // ERASE (at old position)
@@ -2511,39 +2517,71 @@ void draw_score(int x, int y,unsigned short dif_scor[]){
 }
 
 
+void check_pacdots(int x, int y, int width) {
+    int xi, yi;
+
+    for (xi = x; xi < x + width; xi++) {
+        for (yi = y; yi < y + width; yi++) {
+            for(int i = 0; i < pacdot.width && (i + xi < MAP_WIDTH) && (i + xi >= 0) && (yi < MAP_HEIGHT) && (i + yi >= 0) ; i++){ 
+                
+                // Check if there's a pac-dot at the current position and it's not an invalid point
+                if (pacdot.pac_dot_positions[yi * MAP_WIDTH + xi - i] != INVALID_POINT) {
+                    draw_dot(xi, yi);
+                    return;
+                }
+            }
+                
+        }
+    }
+}
+
+
+void draw_pac_dots(){
+    int xi, yi;
+    for (xi = 0; xi < MAP_WIDTH; xi++){
+        for (yi = 0; yi < MAP_HEIGHT; yi++) {
+            if(pacdot.pac_dot_positions[yi * MAP_WIDTH + xi] != INVALID_POINT){
+                draw_dot(xi, yi);
+            }
+        }
+    }
+}
+
+
+
 void dot_position() {
   //draw dots in x fitsy row
   for (int x = 109; x < 190; x += 10) {
     	draw_dot(x, 8);
-	  draw_dot(x, 109);
-	draw_dot(x, 155);
-	  draw_dot(x, 225); 
+	    draw_dot(x, 109);
+	    draw_dot(x, 155);
+	    draw_dot(x, 225); 
   }
 	
-for(int x = 240; x <320; x+=10){
-	draw_dot(x, 8);
-	draw_dot(x, 155);
-	draw_dot(x, 225);
+    for(int x = 240; x <320; x+=10){
+        draw_dot(x, 8);
+        draw_dot(x, 155);
+        draw_dot(x, 225);
 
-}
+    }
 
 	for(int x = 165; x < 290; x+=10){
 		draw_dot(x, 180);
 		draw_dot(x, 40);
 	}
-//draw dots in y position
+    
+    //draw dots in y position
     for (int y = 15; y <60 ; y += 10) {
     draw_dot(109, y);
 	draw_dot(295, y);
 	draw_dot(155, y);
-  }
+    }
 
 	for(int y = 65; y < 105; y+=10){
 		draw_dot(155, y);
 		draw_dot(295, y);
 
-}
-
+    }
 }
 
 void draw_dot(int x, int y) {
