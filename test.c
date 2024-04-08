@@ -3455,69 +3455,41 @@ void check_ghosts_hit()
 
 
 void check_all_ghosts_pacdots(){
-  for(int i = 0; i < 4; i++){
-    check_ghost_pacdots(ghosts[i].x, ghosts[i].y, ghosts[i].width, ghosts[i].dx, ghosts[i].dy);
-  }
-}
+  for (int i = 0; i < 4; i++)  {
+      // Calculate the extended bounds of the area to check, considering a dot's width
+      int maxDotWidth = 15; // Use the larger size to ensure coverage (e.g., cherry size)
+      int startX = ghosts[i].x - maxDotWidth;
+      int endX = ghosts[i].x + ghosts[i].width + maxDotWidth;
+      int startY = ghosts[i].y - maxDotWidth;
+      int endY = ghosts[i].y + ghosts[i].width + maxDotWidth;
 
-void check_ghost_pacdots(int x, int y, int width, int dx, int dy)
-{
-  // Check left side
-  if(dx == 1){
-    for(int yi = y; yi < (y + width); yi ++){
-      for(int xi = x - 15; xi < (x + width); xi++){
-		if(dotPos[yi * MAP_WIDTH + xi] == 0xffff){      
-		  draw_dot(xi, yi);
-		}
+      // Iterate over the extended area
+      for (int y = startY; y < endY; y++)
+      {
+          for (int x = startX; x < endX; x++)
+          {
+              // Ensure we're within map bounds
+              if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT)
+              {
+                  unsigned short posCode = dotPos[y * MAP_WIDTH + x];
 
-        else if (dotPos[yi * MAP_WIDTH + xi] == 0x67e1) {     
-          sprite_draw(cherry, xi, yi, 15, 15);        
-        } 
+                  // Check for dot
+                  if (posCode == 0xffff)
+                  {
+                      // Assuming the function draw_dot handles drawing within bounds
+                      draw_dot(x, y);
+                      // Optionally update dotPos to indicate consumption
+                  }
+                  // Check for cherry
+                  else if (posCode == 0x67e1)
+                  {
+                      // Assuming sprite_draw handles drawing within bounds
+                      sprite_draw(cherry, x, y, 15, 15); // Adjust size if necessary
+                      // Optionally update dotPos to indicate consumption
+                  }
+              }
+          }
       }
-    }    
-  }
-	
-
-  if(dx == -1){
-    for(int yi = y; yi < (y + width); yi ++){
-      for(int xi = x + width + 15; xi > x; xi--){
-        if(dotPos[yi * MAP_WIDTH + xi] == 0xffff){      
-          draw_dot(xi, yi);
-        }
-
-        else if (dotPos[yi * MAP_WIDTH + xi] == 0x67e1) {     
-          sprite_draw(cherry, xi, yi, 15, 15);        
-        } 
-      }
-    }    
-  }
- 
-  if(dy == -1){
-    for(int xi = x; xi < (x + width); xi ++){
-      for(int yi = y + width + 15; yi > y ; yi--){
-        if(dotPos[yi * MAP_WIDTH + xi] == 0xffff){      
-          draw_dot(xi, yi);
-        }
-
-        else if (dotPos[yi * MAP_WIDTH + xi] == 0x67e1) {     
-          sprite_draw(cherry, xi, yi, 15, 15);        
-        } 
-      }
-    }    
-  }
-	
-  if(dy == 1){
-    for(int xi = x; xi < (x + width); xi ++){
-      for(int yi = y - 15; yi < (y + width); yi++){ 
-        if(dotPos[yi * MAP_WIDTH + xi] == 0xffff){      
-          draw_dot(xi, yi);
-        }
-
-        else if (dotPos[yi * MAP_WIDTH + xi] == 0x67e1) {     
-          sprite_draw(cherry, xi, yi, 15, 15);        
-        } 
-      }
-    }    
   }
 }
 
@@ -4466,7 +4438,7 @@ void dot_position()
 
         dotPos[y * 320 + 109] = 0xffff;
         dotPos[y * 320 + 310] = 0xffff;
-        dotPos[y * 320 + 140] = 0xffff;
+        dotPos[y * 320 + 149] = 0xffff;
         dotPos[y * 320 + 270] = 0xffff;
 
         dotCount += 4;
@@ -4554,7 +4526,7 @@ void dot_position()
         draw_dot(196, y);
         draw_dot(220, y);
 
-        dotPos[y * 320 + 192] = 0xffff;
+        dotPos[y * 320 + 196] = 0xffff;
         dotPos[y * 320 + 220] = 0xffff;
 
         dotCount += 2;
@@ -4595,6 +4567,7 @@ void dot_position()
   dotPos[213 * 320 + 303] = 0x67e1;
   dotPos[5 * 320 + 303] = 0x67e1;
 }
+
 void draw_dot(int x, int y){
   for (int sxi = 0; sxi < 4; sxi++)
   {
