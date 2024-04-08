@@ -3110,7 +3110,7 @@ void chose_a_move(int num_available_moves, int available_moves[num_available_mov
 void update_ghosts();
 void draw_ghosts();
 void draw_dot(int x, int y);
-void draw_score(int x, int y, unsigned short dif_scor[]);
+void draw_final_score(int x, int y, unsigned short dif_scor[]);
 void dot_position();
 void random_move(int i);
 void pacman_death();
@@ -3125,11 +3125,11 @@ void check_dot_score(int x, int y, int width);
 void change_score(int tempScor, int startX, int startY);
 void update_score(int num);
 void redraw_dots();
+void final_score(int tempScor);
 
 volatile int *pixel_ctrl_ptr = (int *)0xFF203020;
 
-int main(void)
-{
+int main(void){
   
   draw_setup();
   count_down_set_up();
@@ -3240,10 +3240,12 @@ int main(void)
     if(win){
       video_text(25, 29, reset);
       map_draw(winScreen);
+      final_score(score);
       wait_for_vsync();
       pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
 
       map_draw(winScreen);
+      final_score(score);
       wait_for_vsync();
       pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
     }
@@ -3537,6 +3539,8 @@ void update_player()
 {
 
   player1.sprite_prev = player1.sprite[player1.sprite_num_prev];
+	player1.x_prev = player1.x;
+		player1.y_prev = player1.y;
 
   if (player1.timer_eat_ghosts > 0)
   {
@@ -4499,8 +4503,7 @@ void update_score(int num)
 
 unsigned short *dif_scor[] = {zero, one, two, three, four, five, six, seven, eight, nine};
 
-void change_score(int tempScor, int startX, int startY)
-{
+void change_score(int tempScor, int startX, int startY){
 
     char string[40];
 
@@ -4509,10 +4512,10 @@ void change_score(int tempScor, int startX, int startY)
 	char text_top_row[40];
 	strcpy(text_top_row, string);
 	
-	video_text(25, 29, text_top_row);
+	video_text(20, 39, text_top_row);
 }
 
-void draw_score(int x, int y, unsigned short dif_scor[])
+/*void draw_score(int x, int y, unsigned short dif_scor[])
 {
   for (int sxi = 0; sxi < 9; sxi++)
   {
@@ -4523,7 +4526,7 @@ void draw_score(int x, int y, unsigned short dif_scor[])
       plot_pixel(xi, yi, dif_scor[syi * 9 + sxi]);
     }
   }
-}
+}*/
 
 
 void dot_position()
@@ -4817,4 +4820,33 @@ void video_text(int x, int y, char * text_ptr) {
 		++text_ptr;
 		++offset;
 	}
+}
+
+
+
+void final_score(int tempScor){
+    int startX = 170;
+    do{
+        int d = tempScor % 10;
+        tempScor = tempScor / 10;
+        draw_final_score(startX, 160, dif_scor[d]);
+        startX -= 9;
+		//printf("diget %d", d);
+		waitasec(4);
+	}while(tempScor != 0);
+	//printf("\n");
+
+}
+
+
+void draw_final_score(int x, int y,unsigned short dif_scor[]){
+  for (int sxi = 0; sxi < 9; sxi++){
+    for (int syi = 0; syi < 9; syi++) {
+      int xi = x + sxi;
+      int yi = y + syi;
+		if(dif_scor[syi * 9 + sxi] == 0xfdbf){
+      plot_pixel(xi, yi, dif_scor[syi * 9 + sxi]);
+		}
+    }	
+  }
 }
