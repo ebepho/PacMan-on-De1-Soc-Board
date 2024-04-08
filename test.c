@@ -3058,7 +3058,7 @@ struct Ghost ghosts[4];
 struct PacDot pacdot;
 struct CountDown countdown[5];
 struct Arrow arrow_symbol;
-unsigned short *pacManDeath[] = {death1, death2, death3, death4, death5, death6, death7, desth8, death9, death10};
+unsigned short *pacManDeath[] = {death1, death2, death3, death4, death5, death6, death7, death8, death9, death10};
 // -------------------------- GRAPHICS.H --------------------------
 volatile int pixel_buffer_start; // global variable
 short int Buffer1[MAP_HEIGHT][512];
@@ -3599,9 +3599,27 @@ void draw_player()
 }
 
 void pacman_death(){
-  for(int i = 0; i < 9; i++){
+  sprite_erase(player1.sprite_prev, player1.x_prev, player1.y_prev, player1.width, player1.width);
+  sprite_draw(pacManDeath[0], player1.x, player1.y, 16, 16);
+  wait_for_vsync();
+  pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
+
+  sprite_erase(player1.sprite[player1.sprite_num], player1.x, player1.y, player1.width, player1.width);
+  sprite_draw(pacManDeath[0], player1.x, player1.y, 16, 16);
+  wait_for_vsync();
+  pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
+
+  for(int i = 1; i < 9; i++){
+    sprite_erase(pacManDeath[i - 1], player1.x, player1.y, 16, 16);
     sprite_draw(pacManDeath[i], player1.x, player1.y, 16, 16);
-    waitasec(1);
+    wait_for_vsync();
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
+   
+
+    sprite_erase(pacManDeath[i - 1], player1.x, player1.y, 16, 16);
+    sprite_draw(pacManDeath[i], player1.x, player1.y, 16, 16);
+    wait_for_vsync();
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
   }
 
 }
@@ -3634,7 +3652,7 @@ void check_ghosts_hit()
       }
       else if (!ghosts[i].edible && !ghosts[i].eyes)
       {
-        pacman_death()
+        pacman_death();
         player1.lives --;
         game_round = false;
       }
