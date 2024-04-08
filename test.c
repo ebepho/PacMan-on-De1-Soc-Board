@@ -2943,6 +2943,7 @@ void check_pacdots(int x, int y, int width);
 void check_dot_score(int x, int y, int width);
 void change_score(int tempScor, int startX, int startY);
 void update_score(int num);
+void redraw_dots();
 
 volatile int *pixel_ctrl_ptr = (int *)0xFF203020;
 
@@ -2982,19 +2983,21 @@ int main(void)
       PS2_ISR();
       if (byte3 == 0x29) {break;}
     }
+
     player1.lives = 3;
     nDots = 0;
     game_over = false;
+    dot_position();
     while (!game_over)
     {
       game_setup();
       map_draw(map);
-      dot_position();
-
+      redraw_dots();
       wait_for_vsync();
       pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
       map_draw(map);
-      dot_position();
+      
+      redraw_dots();
       wait_for_vsync();
       pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
 
@@ -3005,12 +3008,13 @@ int main(void)
       waitasec(2);
 
       game_round = true;
-      restart = false;
+      
       while (game_round)
       {
         // For every 2 moves the player makes, the ghosts will move once
         PS2_ISR();
 
+        restart = false;
         if(byte3 == 0x2D){
           win = false;
           game_round = false;
@@ -4581,6 +4585,20 @@ void draw_dot(int x, int y){
       }
       plot_pixel(xi, yi, dot[syi * 4 + sxi]);
     }
+  }
+}
+
+void redraw_dots(){
+  for(int x = 0; x < 320; x++){
+      for(int y = 0; y < 240; y++){
+          if(dotPos[y * 320 + x] == 0xffff){
+              draw_dot(x,y);
+          }else if(dotPos[y * 320 + x] == 0x67e1){
+              sprite_draw(cherry, x, y, 15, 15);
+
+          }
+      }
+
   }
 }
 
